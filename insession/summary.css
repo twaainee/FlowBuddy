@@ -1,0 +1,178 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    /* ── Page layout ── */
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem 5rem;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards;
+      animation-delay: 0.1s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Namaste heading ── */
+    .namaste {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 300;
+      font-size: clamp(4rem, 12vw, 8rem);
+      color: #4a6b58;
+      letter-spacing: -0.01em;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    /* ── Subtitle ── */
+    .subtitle {
+      font-size: clamp(0.82rem, 2vw, 0.95rem);
+      color: #999;
+      font-weight: 400;
+      line-height: 1.65;
+      text-align: center;
+      max-width: 460px;
+      margin-bottom: 4rem;
+    }
+
+    /* ── Stats block ── */
+    .stats {
+      width: 100%;
+      max-width: 540px;
+      margin-bottom: 4rem;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 0;
+    }
+
+    .stat-row + .stat-row {
+      border-top: 1px solid #f0ede8;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: #bbb;
+      text-transform: uppercase;
+      white-space: nowrap;
+      width: 88px;
+      flex-shrink: 0;
+    }
+
+    .stat-line {
+      flex: 1;
+      height: 1px;
+      background: #ececec;
+    }
+
+    .stat-value {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 300;
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      color: #1a1a1a;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    /* ── Quote block ── */
+    .quote-wrap {
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .quote-marks {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: #d0ccc5;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .quote-text {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(1.35rem, 4vw, 2rem);
+      color: #2a2a2a;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.25rem;
+    }
+
+    .quote-author {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      color: #bbb;
+      text-transform: uppercase;
+    }
+
+    .quote-author::before {
+      content: '— ';
+    }
+
+    /* ── CTA button ── */
+    .btn-return {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #4a6b58;
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      padding: 0.85rem 1.75rem;
+      font-size: 0.84rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-return:hover {
+      background: #3a5646;
+      transform: translateY(-1px);
+    }
+
+    .btn-return svg {
+      width: 14px;
+      height: 14px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .page { padding: 3rem 1.25rem 4rem; }
+      .namaste { margin-bottom: 1rem; }
+      .subtitle { margin-bottom: 2.5rem; }
+      .stats { margin-bottom: 2.5rem; }
+      .quote-wrap { margin-bottom: 2.5rem; }
+      .stat-label { width: 76px; font-size: 0.6rem; }
+    }

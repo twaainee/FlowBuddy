@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowBuddy — Namaste</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="summary.css">
+</head>
+<body>
+
+<div class="page">
+
+  <h1 class="namaste">Namaste</h1>
+
+  <p class="subtitle">
+    Your breath has settled, your mind is still. Carry this sanctuary
+    within you as you move back into the world.
+  </p>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-row">
+      <span class="stat-label">Duration</span>
+      <span class="stat-line"></span>
+      <span class="stat-value" id="stat-duration">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Alignment</span>
+      <span class="stat-line"></span>
+      <span class="stat-value" id="stat-alignment">—</span>
+    </div>
+  </div>
+
+  <!-- Quote -->
+  <div class="quote-wrap">
+    <div class="quote-marks">99</div>
+    <p class="quote-text" id="quote-text">
+      "The soul always knows what to do to heal itself. The challenge is to silence the mind."
+    </p>
+    <p class="quote-author" id="quote-author">Caroline Myss</p>
+  </div>
+
+  <!-- CTA -->
+  <a class="btn-return" href="../practice/practice.html">
+    Return to Sanctuary
+    <svg viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
+  </a>
+
+</div>
+
+<script>
+  // ─── Yoga quotes pool ───────────────────────────────
+  const QUOTES = [
+    { text: '"The soul always knows what to do to heal itself. The challenge is to silence the mind."', author: 'Caroline Myss' },
+    { text: '"Yoga is the journey of the self, through the self, to the self."', author: 'The Bhagavad Gita' },
+    { text: '"The nature of yoga is to shine the light of awareness into the darkest corners of the body."', author: 'Jason Crandell' },
+    { text: '"Inhale the future, exhale the past."', author: 'Unknown' },
+    { text: '"You cannot always control what goes on outside. But you can always control what goes on inside."', author: 'Wayne Dyer' },
+    { text: '"True yoga is not about the shape of your body, but the shape of your life."', author: 'Aadil Palkhivala' },
+    { text: '"Yoga does not remove us from the reality or responsibilities of everyday life but rather places our feet firmly and more securely in the practical ground of experience."', author: 'Donna Farhi' },
+  ];
+
+  // ─── Read URL params ────────────────────────────────
+  function init() {
+    const params = new URLSearchParams(window.location.search);
+
+    // Duration — passed as total seconds practiced
+    const durationRaw = parseInt(params.get('duration') || '0', 10);
+    const durationSec = Number.isFinite(durationRaw) ? clamp(durationRaw, 0, 6 * 60 * 60) : 0; // max 6 hours
+    document.getElementById('stat-duration').textContent = formatDuration(durationSec);
+
+    // Alignment score
+    const alignmentRaw = parseInt(params.get('alignment') || '0', 10);
+    const alignment = Number.isFinite(alignmentRaw) ? clamp(alignmentRaw, 0, 100) : 0;
+    document.getElementById('stat-alignment').textContent = alignment > 0 ? alignment + '%' : '—';
+
+    // Random quote
+    const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    document.getElementById('quote-text').textContent   = q.text;
+    document.getElementById('quote-author').textContent = q.author;
+  }
+
+  function formatDuration(totalSec) {
+    if (totalSec <= 0) return '—';
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    if (m === 0) return `${s}s`;
+    if (s === 0) return `${m}m`;
+    return `${m}m ${s}s`;
+  }
+
+  function clamp(n, min, max) {
+    return Math.min(max, Math.max(min, n));
+  }
+
+  init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowBuddy — In Session</title>
+  <link rel="stylesheet" href="insession.css" />
+</head>
+<body>
+
+<div id="screen-session">
+ 
+  <!-- ── Camera pane ── -->
+  <div class="camera-pane">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+ 
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <p>Starting camera…</p>
+    </div>
+ 
+    <div id="cam-error">
+      <div class="err-icon">🚫</div>
+      <strong>Camera access denied</strong>
+      <p>Allow camera access in your browser settings and reload.</p>
+    </div>
+ 
+    <button class="btn-close" onclick="endSession()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke-linecap="round"/></svg>
+    </button>
+ 
+    <div class="live-badge">
+      <span class="live-dot"></span>LIVE FOCUS
+    </div>
+ 
+    <div id="correction-toast" class="hidden">
+      <div class="toast-icon">
+        <svg viewBox="0 0 18 18" fill="none">
+          <path d="M9 2.5L16 15H2L9 2.5Z" fill="#ffe4e4" stroke="#e53e3e" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M9 8V11" stroke="#e53e3e" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="9" cy="13" r="0.8" fill="#e53e3e"/>
+        </svg>
+      </div>
+      <div class="toast-body">
+        <div class="toast-title" id="toast-title">Adjust your form</div>
+        <div class="toast-msg"  id="toast-msg">Step into frame and hold the pose.</div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ── Desktop Sidebar ── -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div>
+        <div class="sb-pose-name" id="sb-pose-name">—</div>
+        <div class="sb-sanskrit"  id="sb-sanskrit">—</div>
+      </div>
+      <div class="sb-timer-wrap">
+        <div class="sb-timer" id="sb-timer">—:——</div>
+        <div class="sb-timer-label">Remaining</div>
+      </div>
+    </div>
+ 
+    <div class="score-section">
+      <div class="score-header">
+        <span class="score-label">Alignment Score</span>
+        <span class="score-pct" id="sb-score-pct">—</span>
+      </div>
+      <div class="score-bar-bg">
+        <div class="score-bar-fill" id="sb-score-bar"></div>
+      </div>
+    </div>
+ 
+    <div class="sb-divider"></div>
+    <div class="switch-label">Switch Pose</div>
+ 
+    <div class="pose-list">
+      <button class="pose-list-item" id="pli-mountain" onclick="switchPose('mountain')">
+        <div class="pli-left"><div class="pli-name">Mountain Pose</div><div class="pli-diff">Easy</div></div>
+        <span class="pli-chevron">›</span>
+        <span class="pli-dot" style="display:none"></span>
+      </button>
+      <button class="pose-list-item" id="pli-downdog" onclick="switchPose('downdog')">
+        <div class="pli-left"><div class="pli-name">Downward Dog</div><div class="pli-diff">Medium</div></div>
+        <span class="pli-chevron">›</span>
+        <span class="pli-dot" style="display:none"></span>
+      </button>
+      <button class="pose-list-item" id="pli-warrior" onclick="switchPose('warrior')">
+        <div class="pli-left"><div class="pli-name">Warrior I</div><div class="pli-diff">Intermediate</div></div>
+        <span class="pli-chevron">›</span>
+        <span class="pli-dot" style="display:none"></span>
+      </button>
+    </div>
+ 
+    <div class="sb-spacer"></div>
+ 
+    <a class="btn-end" href="#" onclick="endSession(); return false;">
+      <div class="btn-end-icon">
+        <svg viewBox="0 0 10 10"><rect x="1" y="1" width="3.5" height="8" rx="0.75"/><rect x="5.5" y="1" width="3.5" height="8" rx="0.75"/></svg>
+      </div>
+      End Practice
+    </a>
+  </div>
+ 
+  <!-- ── Mobile Bottom Panel ── -->
+  <div class="bottom-panel">
+ 
+    <div class="bp-topstrip">
+      <div>
+        <div class="bp-pose-name" id="bp-pose-name">—</div>
+        <div class="bp-sanskrit"  id="bp-sanskrit">—</div>
+      </div>
+      <div>
+        <div class="bp-timer" id="bp-timer">—:——</div>
+        <div class="bp-timer-lbl">Remaining</div>
+      </div>
+    </div>
+ 
+    <div class="bp-score">
+      <div class="bp-score-header">
+        <span class="bp-score-label">Alignment Score</span>
+        <span class="bp-score-pct" id="bp-score-pct">—</span>
+      </div>
+      <div class="bp-bar-bg">
+        <div class="bp-bar-fill" id="bp-score-bar"></div>
+      </div>
+    </div>
+ 
+    <div class="bp-divider"></div>
+    <div class="bp-switch-label">Switch Pose</div>
+ 
+    <div class="bp-pose-pills">
+      <button class="bp-pill" id="bpp-mountain" onclick="switchPose('mountain')">
+        <span class="bp-pill-name">Mountain Pose</span>
+        <span class="bp-pill-diff">Easy</span>
+      </button>
+      <button class="bp-pill" id="bpp-downdog" onclick="switchPose('downdog')">
+        <span class="bp-pill-name">Downward Dog</span>
+        <span class="bp-pill-diff">Medium</span>
+      </button>
+      <button class="bp-pill" id="bpp-warrior" onclick="switchPose('warrior')">
+        <span class="bp-pill-name">Warrior I</span>
+        <span class="bp-pill-diff">Intermediate</span>
+      </button>
+    </div>
+ 
+    <div class="bp-end-wrap">
+      <a class="bp-btn-end" href="#" onclick="endSession(); return false;">
+        <div class="bp-btn-end-icon">
+          <svg viewBox="0 0 10 10"><rect x="1" y="1" width="3.5" height="8" rx="0.75"/><rect x="5.5" y="1" width="3.5" height="8" rx="0.75"/></svg>
+        </div>
+        End Practice
+      </a>
+    </div>
+ 
+  </div>
+ 
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+
+<script src="insession.js"></script>
+</body>
+</html>
