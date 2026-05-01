@@ -565,10 +565,42 @@ function renderTimer() {
   if (bpT) bpT.textContent = val;
 }
  
+// ─── Terms & Conditions ──────────────────────────────
+function onTcCheckboxChange() {
+  const checkbox = document.getElementById('tc-agree-checkbox');
+  const btn      = document.getElementById('btn-tc-accept');
+  btn.disabled   = !checkbox.checked;
+}
+ 
+function acceptTermsAndStart() {
+  const overlay = document.getElementById('tc-overlay');
+  overlay.classList.add('hidden');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    startPose(activePose);
+  }, 320);
+}
+ 
+function declineTerms() {
+  window.location.href = '../practice/practice.html';
+}
+ 
 // ─── Navigation ──────────────────────────────────────
 async function initFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  await startPose(params.get('pose') || 'mountain');
+  const params  = new URLSearchParams(window.location.search);
+  const poseKey = params.get('pose') || 'mountain';
+ 
+  // Populate sidebar meta without starting camera yet
+  activePose  = poseKey;
+  smoothScore = null; scoreReadings = 0;
+  poseLocked = false; poseLockedFrames = 0;
+  const meta = POSE_META[poseKey] || POSE_META.mountain;
+  updateSidebarMeta(poseKey, meta);
+  updateActivePill(poseKey);
+  startTimer(meta.timer);
+ 
+  // Show T&C — camera starts only after user accepts
+  document.getElementById('tc-overlay').classList.remove('hidden');
 }
  
 async function startPose(poseKey) {

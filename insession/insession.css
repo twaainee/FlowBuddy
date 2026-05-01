@@ -312,3 +312,220 @@
       }
       .bp-btn-end-icon svg { width: 7px; height: 7px; fill: #fff; }
     }
+ 
+    /* ══════════════════════════════
+       TERMS & CONDITIONS OVERLAY
+    ══════════════════════════════ */
+    #tc-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 25, 18, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 1rem;
+      transition: opacity 0.3s;
+    }
+ 
+    #tc-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+ 
+    .tc-modal {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+    }
+ 
+    /* Top green bar */
+    .tc-modal-header {
+      background: #3d6352;
+      padding: 1.4rem 1.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex-shrink: 0;
+    }
+ 
+    .tc-shield {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+ 
+    .tc-shield svg {
+      width: 20px; height: 20px;
+      stroke: #fff; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+ 
+    .tc-modal-header-text h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.15rem;
+    }
+ 
+    .tc-modal-header-text p {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.7);
+    }
+ 
+    /* Scrollable body */
+    .tc-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.4rem 1.6rem;
+      scrollbar-width: thin;
+      scrollbar-color: #d0ccc5 transparent;
+    }
+ 
+    .tc-section {
+      margin-bottom: 1.25rem;
+    }
+ 
+    .tc-section:last-child { margin-bottom: 0; }
+ 
+    .tc-section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #3d6352;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.45rem;
+    }
+ 
+    .tc-section p {
+      font-size: 0.8rem;
+      color: #555;
+      line-height: 1.68;
+    }
+ 
+    /* Privacy highlight box */
+    .tc-highlight {
+      background: #eef6f1;
+      border-left: 3px solid #3d6352;
+      border-radius: 0 8px 8px 0;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+    }
+ 
+    .tc-highlight svg {
+      width: 16px; height: 16px;
+      stroke: #3d6352; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+ 
+    .tc-highlight p {
+      font-size: 0.8rem;
+      color: #2d5040;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+ 
+    /* Divider */
+    .tc-divider {
+      height: 1px;
+      background: #f0ede8;
+      margin: 1rem 0;
+    }
+ 
+    /* Checkbox row */
+    .tc-checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem 0 0.5rem;
+    }
+ 
+    .tc-checkbox-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: #3d6352;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+ 
+    .tc-checkbox-row label {
+      font-size: 0.8rem;
+      color: #444;
+      line-height: 1.6;
+      cursor: pointer;
+    }
+ 
+    .tc-checkbox-row label strong {
+      color: #1a1a1a;
+    }
+ 
+    /* Footer buttons */
+    .tc-modal-footer {
+      padding: 1rem 1.6rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      flex-shrink: 0;
+      border-top: 1px solid #f0ede8;
+    }
+ 
+    .btn-tc-accept {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: #3d6352;
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+ 
+    .btn-tc-accept:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+ 
+    .btn-tc-accept:not(:disabled):hover { background: #315545; }
+ 
+    .btn-tc-accept svg {
+      width: 14px; height: 14px;
+      stroke: #fff; fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+ 
+    .btn-tc-decline {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+ 
+    .btn-tc-decline:hover { color: #555; }

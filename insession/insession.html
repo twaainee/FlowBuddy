@@ -8,6 +8,89 @@
 </head>
 <body>
 
+<div id="tc-overlay">
+  <div class="tc-modal">
+ 
+    <!-- Header -->
+    <div class="tc-modal-header">
+      <div class="tc-shield">
+        <svg viewBox="0 0 20 20">
+          <path d="M10 2L3 5v5c0 4.5 3 8 7 9 4-1 7-4.5 7-9V5l-7-3z"/>
+        </svg>
+      </div>
+      <div class="tc-modal-header-text">
+        <h2>Privacy & Terms of Use</h2>
+        <p>Please read before starting your practice</p>
+      </div>
+    </div>
+ 
+    <!-- Scrollable body -->
+    <div class="tc-modal-body">
+ 
+      <!-- Privacy highlight -->
+      <div class="tc-highlight">
+        <svg viewBox="0 0 16 16">
+          <path d="M8 1L2 4v4c0 3.5 2.5 6.5 6 7 3.5-.5 6-3.5 6-7V4L8 1z"/>
+          <polyline points="5,8 7,10 11,6"/>
+        </svg>
+        <p>Your camera feed is processed entirely on your device. No video, image, or biometric data is ever recorded, transmitted, or stored outside this browser session.</p>
+      </div>
+ 
+      <div class="tc-section">
+        <div class="tc-section-title">1. Camera Access</div>
+        <p>FlowBuddy requests access to your device camera solely to detect your body pose in real time. The video stream is processed locally by Google's MediaPipe Pose library, which runs entirely within your browser. At no point is any video data sent to FlowBuddy servers, third-party services, or any external destination.</p>
+      </div>
+ 
+      <div class="tc-divider"></div>
+ 
+      <div class="tc-section">
+        <div class="tc-section-title">2. Data Collection</div>
+        <p>FlowBuddy does not collect, store, or transmit any personal data. No account is required. No cookies are set. Your session results (duration and alignment score) are passed between pages using URL parameters only, and are discarded when you close the browser tab.</p>
+      </div>
+ 
+      <div class="tc-divider"></div>
+ 
+      <div class="tc-section">
+        <div class="tc-section-title">3. On-Device Processing</div>
+        <p>All pose analysis — including landmark detection, angle calculation, and form feedback — is computed in real time on your own device using WebAssembly and JavaScript. This means your video never leaves your machine, even for analysis.</p>
+      </div>
+ 
+      <div class="tc-divider"></div>
+ 
+      <div class="tc-section">
+        <div class="tc-section-title">4. Health Disclaimer</div>
+        <p>FlowBuddy is an educational tool and is not a substitute for professional medical or fitness advice. If you have any injuries, medical conditions, or physical limitations, please consult a qualified healthcare provider before participating in any yoga or exercise activity.</p>
+      </div>
+ 
+      <div class="tc-divider"></div>
+ 
+      <div class="tc-section">
+        <div class="tc-section-title">5. Your Consent</div>
+        <p>By checking the box below and clicking "Allow Camera Access", you confirm that you have read and understood these terms, and that you consent to FlowBuddy using your device camera for local, real-time pose detection only.</p>
+      </div>
+ 
+      <!-- Checkbox -->
+      <div class="tc-checkbox-row">
+        <input type="checkbox" id="tc-agree-checkbox" onchange="onTcCheckboxChange()" />
+        <label for="tc-agree-checkbox">
+          I have read and agree to the terms above. I understand that <strong>no video or personal data leaves this device</strong> and that my camera feed is used solely for local pose detection.
+        </label>
+      </div>
+ 
+    </div>
+ 
+    <!-- Footer buttons -->
+    <div class="tc-modal-footer">
+      <button class="btn-tc-accept" id="btn-tc-accept" disabled onclick="acceptTermsAndStart()">
+        <svg viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
+        Allow Camera Access
+      </button>
+      <button class="btn-tc-decline" onclick="declineTerms()">Decline &amp; Go Back</button>
+    </div>
+ 
+  </div>
+</div>
+ 
 <div id="screen-session">
  
   <!-- ── Camera pane ── -->
@@ -157,6 +240,7 @@
   </div>
  
 </div>
+
 
 
 

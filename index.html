@@ -3,10 +3,536 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FlowBuddy</title>
-  <meta http-equiv="refresh" content="0; url=practice/practice.html" />
+  <title>FlowBuddy — Your AI Yoga Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f0eee8;
+      color: #1a1a1a;
+      overflow-x: hidden;
+    }
+
+    /* ════════════════════ NAV ════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      padding: 0 2.5rem;
+      height: 52px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .nav-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      margin-right: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.75rem;
+      list-style: none;
+      margin-right: auto;
+    }
+
+    .nav-links a {
+      font-size: 0.84rem;
+      color: rgba(255,255,255,0.82);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover { color: #fff; }
+
+    .nav-links a.active {
+      color: #fff;
+      font-weight: 600;
+      border-bottom: 1.5px solid rgba(255,255,255,0.65);
+      padding-bottom: 1px;
+    }
+
+    .btn-nav {
+      background: rgba(30,50,40,0.55);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 99px;
+      padding: 0.45rem 1.15rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-nav:hover { background: rgba(20,40,30,0.8); }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4.5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+      margin-left: auto;
+    }
+
+    .nav-hamburger span { display: block; width: 20px; height: 2px; background: #fff; border-radius: 2px; }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 52px; left: 0; right: 0;
+      background: rgba(25,60,45,0.97);
+      backdrop-filter: blur(14px);
+      flex-direction: column;
+      padding: 1rem 1.5rem 1.25rem;
+      gap: 0.85rem;
+      z-index: 99;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.82);
+      text-decoration: none;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-drawer .drawer-cta {
+      margin-top: 0.25rem;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 99px;
+      padding: 0.7rem 1.1rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    /* ════════════════════ HERO ════════════════════ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 6rem;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        140deg,
+        #163d2e 0%,
+        #1e5c44 20%,
+        #267a5a 40%,
+        #30a070 60%,
+        #44c98a 78%,
+        #6fe0ae 92%,
+        #90eed0 100%
+      );
+    }
+
+    /* Flowing wave lines overlay */
+    .hero-waves {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 560px;
+    }
+
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(2.1rem, 5.5vw, 3.4rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero p {
+      font-size: clamp(0.85rem, 2vw, 0.97rem);
+      color: rgba(255,255,255,0.78);
+      line-height: 1.72;
+      max-width: 360px;
+      margin: 0 auto 2.25rem;
+    }
+
+    .btn-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(18,40,30,0.7);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff;
+      border-radius: 99px;
+      padding: 0.78rem 1.65rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-hero:hover { background: rgba(12,30,22,0.85); transform: translateY(-1px); }
+    .btn-hero svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ════════════════════ FEATURES ════════════════════ */
+    .features {
+      background: #eeece6;
+      padding: 6.5rem 2rem 5.5rem;
+    }
+
+    .features-header {
+      text-align: center;
+      max-width: 500px;
+      margin: 0 auto 4rem;
+    }
+
+    .features-header h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+      font-weight: 800;
+      color: #1a1a1a;
+      letter-spacing: -0.022em;
+      line-height: 1.15;
+      margin-bottom: 0.85rem;
+    }
+
+    .features-header p {
+      font-size: 0.88rem;
+      color: #999;
+      line-height: 1.68;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.15rem;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 1.75rem 1.75rem 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 370px;
+      border: 1px solid rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .feature-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: #f2efe8;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .feature-icon svg {
+      width: 19px; height: 19px;
+      stroke: #555; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .feature-card h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.55rem;
+    }
+
+    .feature-card p {
+      font-size: 0.81rem;
+      color: #999;
+      line-height: 1.68;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-visual {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    /* ════════════════════ VISION ════════════════════ */
+    .vision {
+      background: #fff;
+      padding: 7rem 2rem 5.5rem;
+    }
+
+    .vision-inner {
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    .vision-label {
+      font-size: 0.63rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #ccc;
+      margin-bottom: 2rem;
+    }
+
+    .vision-quote {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(1.5rem, 3.5vw, 2.55rem);
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.27;
+      letter-spacing: -0.02em;
+      margin-bottom: 4.5rem;
+    }
+
+    .vision-quote em {
+      font-style: italic;
+      color: #3d7a5a;
+      font-weight: 800;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+    }
+
+    .pillar h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .pillar p {
+      font-size: 0.76rem;
+      color: #aaa;
+      line-height: 1.68;
+    }
+
+    /* ════════════════════ FOOTER ════════════════════ */
+    footer {
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.15rem 2.5rem;
+      font-size: 0.77rem;
+      color: #bbb;
+      border-top: 1px solid #f0ede6;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    footer .footer-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      color: #555;
+      font-size: 0.84rem;
+    }
+
+    /* ════════════════════ RESPONSIVE ════════════════════ */
+    @media (max-width: 700px) {
+      nav { padding: 0 1.25rem; }
+      .nav-links, .btn-nav { display: none; }
+      .nav-hamburger { display: flex; }
+
+      .hero { padding: 6.5rem 1.25rem 4rem; }
+      .features { padding: 4rem 1.25rem 3.5rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card { min-height: auto; }
+      .feature-visual { min-height: 180px; }
+
+      .vision { padding: 4.5rem 1.25rem 3.5rem; }
+      .pillars { grid-template-columns: 1fr; gap: 1.75rem; }
+
+      footer { flex-direction: column; align-items: flex-start; padding: 1rem 1.25rem; }
+    }
+  </style>
 </head>
 <body>
-  <p>Redirecting to <a href="practice/practice.html">Practice</a>...</p>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="index.html">FlowBuddy</a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Sanctuary</a></li>
+    <li><a href="practice/practice.html">About Us</a></li>
+    <li><a href="practice/practice.html">Practice</a></li>
+  </ul>
+  <a class="btn-nav" href="practice/practice.html">Begin Flow</a>
+  <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <a href="index.html">Sanctuary</a>
+  <a href="practice/practice.html">About Us</a>
+  <a href="practice/practice.html">Practice</a>
+  <a class="drawer-cta" href="practice/practice.html">Begin Flow</a>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <!-- Wave lines SVG matching reference -->
+  <svg class="hero-waves" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2">
+      <path d="M-200,700 C100,640 300,720 600,660 S900,580 1100,600 S1350,640 1640,590"/>
+      <path d="M-200,660 C100,600 300,680 600,620 S900,540 1100,560 S1350,600 1640,550"/>
+      <path d="M-200,620 C100,560 300,640 600,580 S900,500 1100,520 S1350,560 1640,510"/>
+      <path d="M-200,580 C100,520 300,600 600,540 S900,460 1100,480 S1350,520 1640,470"/>
+      <path d="M-200,540 C100,480 300,560 600,500 S900,420 1100,440 S1350,480 1640,430"/>
+      <path d="M-200,500 C100,440 300,520 600,460 S900,380 1100,400 S1350,440 1640,390"/>
+      <path d="M-200,460 C100,400 300,480 600,420 S900,340 1100,360 S1350,400 1640,350"/>
+      <path d="M-200,420 C100,360 300,440 600,380 S900,300 1100,320 S1350,360 1640,310"/>
+      <path d="M-200,740 C100,680 300,760 600,700 S900,620 1100,640 S1350,680 1640,630"/>
+      <path d="M-200,780 C100,720 300,800 600,740 S900,660 1100,680 S1350,720 1640,670"/>
+      <path d="M-200,380 C100,320 300,400 600,340 S900,260 1100,280 S1350,320 1640,270"/>
+      <path d="M-200,340 C100,280 300,360 600,300 S900,220 1100,240 S1350,280 1640,230"/>
+    </g>
+  </svg>
+
+  <div class="hero-content">
+    <h1>Your AI Yoga Assistant</h1>
+    <p>Personalized flows, real-time posture correction, and guided meditation—designed to elevate your practice in the comfort of your sanctuary.</p>
+    <a class="btn-hero" href="practice/practice.html">
+      Begin Flow
+      <svg viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <div class="features-header">
+    <h2>Intelligence that feels natural.</h2>
+    <p>We stripped away the noise. What remains is pure focus, guided by subtle, invisible technology.</p>
+  </div>
+
+  <div class="features-grid">
+
+    <!-- Card 1 -->
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 20 20">
+          <circle cx="10" cy="4" r="1.5"/>
+          <line x1="10" y1="5.5" x2="10" y2="11"/>
+          <line x1="6.5" y1="8" x2="13.5" y2="8"/>
+          <line x1="10" y1="11" x2="7" y2="16"/>
+          <line x1="10" y1="11" x2="13" y2="16"/>
+        </svg>
+      </div>
+      <h3>Real-Time Alignment</h3>
+      <p>Our computer vision gently corrects your form without interrupting your flow. Like a subtle adjustment from a master teacher.</p>
+      <div class="feature-visual">
+        <img src="assets/alignment.png" alt="Real-Time Alignment" style="width:100%;height:180px;object-fit:cover;border-radius:0 0 4px 4px;display:block;" />
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 20 20">
+          <polyline points="2,15 6,10 10,12.5 14,7 18,9"/>
+          <circle cx="18" cy="9" r="1.5" fill="#555" stroke="none"/>
+        </svg>
+      </div>
+      <h3>Real-Time Analysis</h3>
+      <p>MediaPipe interprets body language in real-time, focusing on the poetry of movement. It's not about tracking stats, but about deepening your connection to the present moment within your digital sanctuary.</p>
+      <div class="feature-visual">
+        <img src="assets/analysis.png" alt="Real-Time Analysis" style="width:100%;height:180px;object-fit:cover;border-radius:0 0 4px 4px;display:block;" />
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── VISION ── -->
+<section class="vision" id="about">
+  <div class="vision-inner">
+    <p class="vision-label">Our Vision</p>
+    <p class="vision-quote">
+      "We believe wellness should be a fundamental right, not a luxury. By making high-level <em>pose correction</em> accessible via the device in your pocket, we remove the barriers between humanity and its best self."
+    </p>
+    <div class="pillars">
+      <div class="pillar">
+        <h4>Democratizing Access</h4>
+        <p>Top-tier yoga instruction shouldn't depend on your proximity to a studio or your hourly budget.</p>
+      </div>
+      <div class="pillar">
+        <h4>Focus, Not Screens</h4>
+        <p>Our AI works in the background, providing gentle auditory and haptic cues so your eyes stay on your practice.</p>
+      </div>
+      <div class="pillar">
+        <h4>Inclusive Engineering</h4>
+        <p>Optimized for every body type, ability level, and lighting condition. Yoga for all, truly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span class="footer-logo">FlowBuddy</span>
+  <span>© 2024 FlowBuddy. Digital Sanctuary for Yoga.</span>
+</footer>
+
+<script>
+  function toggleNav() {
+    document.getElementById('nav-drawer').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const drawer    = document.getElementById('nav-drawer');
+    const hamburger = document.getElementById('hamburger');
+    if (!hamburger.contains(e.target) && !drawer.contains(e.target)) {
+      drawer.classList.remove('open');
+    }
+  });
+</script>
 </body>
 </html>
