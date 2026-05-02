@@ -16,97 +16,6 @@ body {
   overflow-x: hidden;
 }
 
-nav {
-  height: 64px;
-  padding: 0 5.35rem;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  background: #fbfbf8;
-  border-bottom: 1px solid #efefeb;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-logo {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  font-size: 0.98rem;
-  color: var(--green);
-  text-decoration: none;
-  margin-right: auto;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(3rem, 8vw, 7rem);
-  list-style: none;
-  flex: 1;
-}
-
-.nav-links a {
-  color: #9fa8a1;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.nav-links a:hover,
-.nav-links a.active { color: var(--green); }
-
-.btn-nav,
-.drawer-cta {
-  background: var(--green);
-  color: #fff;
-  border-radius: 999px;
-  padding: 0.58rem 1.25rem;
-  text-decoration: none;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.76rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.nav-hamburger {
-  display: none;
-  flex-direction: column;
-  gap: 4px;
-  background: transparent;
-  border: 0;
-  padding: 0.25rem;
-}
-
-.nav-hamburger span {
-  width: 22px;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--green);
-}
-
-.nav-drawer {
-  display: none;
-  position: sticky;
-  top: 64px;
-  z-index: 90;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem 1.25rem;
-  background: #fbfbf8;
-  border-bottom: 1px solid #efefeb;
-}
-
-.nav-drawer.open { display: flex; }
-
-.nav-drawer a {
-  color: var(--green);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
 main {
   max-width: 1260px;
   margin: 0 auto;
@@ -301,38 +210,7 @@ h3 {
   box-shadow: none;
 }
 
-footer {
-  min-height: 72px;
-  padding: 0 2.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  background: #f1f0ec;
-  color: #8a968d;
-  font-size: 0.76rem;
-}
-
-.footer-logo {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  color: var(--green);
-}
-
 @media (max-width: 900px) {
-  nav {
-    padding: 0 1.25rem;
-  }
-
-  .nav-links,
-  .btn-nav {
-    display: none;
-  }
-
-  .nav-hamburger {
-    display: flex;
-  }
-
   main {
     padding-bottom: 3rem;
   }
@@ -370,10 +248,4 @@ footer {
     height: 300px;
   }
 
-  footer {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 1rem 1.25rem;
-  }
 }
