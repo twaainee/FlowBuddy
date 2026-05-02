@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" role="img" aria-label="Yoga analysis dashboard illustration">
+  <rect width="720" height="360" fill="#f4f1ea"/>
+  <rect x="80" y="70" width="560" height="220" rx="18" fill="#fff" stroke="#d8d2c5"/>
+  <path d="M130 235l90-80 95 45 92-110 183 70" fill="none" stroke="#4a6b58" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="220" cy="155" r="16" fill="#78b58c"/>
+  <circle cx="407" cy="90" r="16" fill="#78b58c"/>
+  <rect x="130" y="255" width="110" height="12" rx="6" fill="#d8e7dc"/>
+  <rect x="265" y="255" width="210" height="12" rx="6" fill="#d8e7dc"/>
+</svg>

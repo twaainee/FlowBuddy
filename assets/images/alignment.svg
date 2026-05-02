@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" role="img" aria-label="Yoga alignment illustration">
+  <rect width="720" height="360" fill="#eef4ef"/>
+  <path d="M0 270c90-50 150-30 230-58s148-95 250-70 146 96 240 45v173H0z" fill="#d8e7dc"/>
+  <circle cx="360" cy="82" r="28" fill="#4a6b58"/>
+  <path d="M360 112v110M272 160h176M360 222l-74 70M360 222l74 70" stroke="#1f3028" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="272" cy="160" r="14" fill="#78b58c"/>
+  <circle cx="448" cy="160" r="14" fill="#78b58c"/>
+  <circle cx="286" cy="292" r="14" fill="#78b58c"/>
+  <circle cx="434" cy="292" r="14" fill="#78b58c"/>
+</svg>

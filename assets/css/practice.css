@@ -9,7 +9,7 @@
     /* ── Global font roles ── */
     h1, h2, h3,
     .nav-logo,
-    .btn-begin-flow,
+    .btn-nav,
     .btn-start-flow,
     .coming-soon h2,
     .tag {
@@ -58,8 +58,15 @@
     }
  
     .nav-links a:hover { color: #1a1a1a; }
+
+    .nav-links a.active {
+      color: #1a1a1a;
+      font-weight: 600;
+      border-bottom: 1.5px solid #4a6b58;
+      padding-bottom: 1px;
+    }
  
-    .btn-begin-flow {
+    .btn-nav {
       background: #4a6b58;
       color: #fff;
       border: none;
@@ -74,7 +81,7 @@
       flex-shrink: 0;
     }
  
-    .btn-begin-flow:hover { background: #3a5646; }
+    .btn-nav:hover { background: #3a5646; }
  
     /* Hamburger — mobile only */
     .nav-hamburger {
@@ -117,9 +124,16 @@
       border-bottom: 1px solid #f0efe8;
     }
  
-    .nav-drawer .btn-begin-flow {
+    .nav-drawer .drawer-cta {
       margin-top: 0.25rem;
       text-align: center;
+      background: #4a6b58;
+      color: #fff;
+      border-radius: 99px;
+      border-bottom: 0;
+      padding: 0.7rem 1rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
     }
  
     /* ── Hero ── */
@@ -295,7 +309,7 @@
         display: none;
       }
  
-      .btn-begin-flow {
+      .btn-nav {
         display: none;
       }
  

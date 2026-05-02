@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" role="img" aria-label="Pose detection skeleton illustration">
+  <rect width="520" height="420" fill="#eef4ef"/>
+  <circle cx="260" cy="72" r="24" fill="#4a6b58"/>
+  <path d="M260 100v100M180 148h160M260 200l-86 102M260 200l86 102" stroke="#1f3028" stroke-width="16" stroke-linecap="round"/>
+  <g fill="#78b58c">
+    <circle cx="180" cy="148" r="13"/><circle cx="340" cy="148" r="13"/><circle cx="174" cy="302" r="13"/><circle cx="346" cy="302" r="13"/><circle cx="260" cy="200" r="13"/>
+  </g>
+</svg>

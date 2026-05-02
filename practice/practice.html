@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FlowBuddy — Practice</title>
-  <link rel="stylesheet" href="practice.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/practice.css" />
 </head>
 <body>
  
@@ -13,10 +16,10 @@
     <a class="nav-logo" href="../index.html">FlowBuddy</a>
     <ul class="nav-links">
       <li><a href="../index.html">Sanctuary</a></li>
-      <li><a href="../index.html">About Us</a></li>
-      <li><a href="practice.html">Practice</a></li>
+      <li><a href="../about/about.html">About Us</a></li>
+      <li><a href="practice.html" class="active">Practice</a></li>
     </ul>
-    <a class="btn-begin-flow" href="../insession/insession.html">Begin Flow</a>
+    <a class="btn-nav" href="../insession/insession.html">Begin Flow</a>
     <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
@@ -25,9 +28,9 @@
   <!-- Mobile drawer -->
   <div class="nav-drawer" id="nav-drawer">
     <a href="../index.html">Sanctuary</a>
-    <a href="../index.html">About Us</a>
+    <a href="../about/about.html">About Us</a>
     <a href="practice.html">Practice</a>
-    <a class="btn-begin-flow" href="../insession/insession.html">Begin Flow</a>
+    <a class="drawer-cta" href="../insession/insession.html">Begin Flow</a>
   </div>
  
   <!-- Hero -->
@@ -94,19 +97,7 @@
     <span>© 2024 FlowBuddy. Digital Sanctuary for Yoga.</span>
   </footer>
  
-  <script>
-    function toggleNav() {
-      document.getElementById('nav-drawer').classList.toggle('open');
-    }
-    // Close drawer on outside click
-    document.addEventListener('click', e => {
-      const drawer = document.getElementById('nav-drawer');
-      const hamburger = document.getElementById('hamburger');
-      if (!hamburger.contains(e.target) && !drawer.contains(e.target)) {
-        drawer.classList.remove('open');
-      }
-    });
-  </script>
+  <script src="../assets/js/nav.js"></script>
 
  
 </body>

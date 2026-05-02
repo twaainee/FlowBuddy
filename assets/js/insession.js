@@ -367,6 +367,7 @@ let personInFrame = false;
 let timerRunning  = false;
 let totalElapsedSec = 0;        // FIX #6: accumulates time across pose switches
 const DEBOUNCE = 380;
+const TERMS_ACCEPTED_KEY = 'flowbuddyTermsAcceptedThisVisit';
  
 // FIX #4: pose-lock — timer only counts when user is in correct pose
 const POSE_LOCK_THRESHOLD = 45; // % score — at least one check must be good
@@ -573,6 +574,7 @@ function onTcCheckboxChange() {
 }
  
 function acceptTermsAndStart() {
+  sessionStorage.setItem(TERMS_ACCEPTED_KEY, 'true');
   const overlay = document.getElementById('tc-overlay');
   overlay.classList.add('hidden');
   setTimeout(() => {
@@ -589,8 +591,12 @@ function declineTerms() {
 async function initFromURL() {
   const params  = new URLSearchParams(window.location.search);
   const poseKey = params.get('pose') || 'mountain';
+  const navEntry = performance.getEntriesByType('navigation')[0];
+  if (navEntry?.type === 'reload') {
+    sessionStorage.removeItem(TERMS_ACCEPTED_KEY);
+  }
  
-  // Populate sidebar meta without starting camera yet
+  // Populate sidebar meta before starting the selected pose.
   activePose  = poseKey;
   smoothScore = null; scoreReadings = 0;
   poseLocked = false; poseLockedFrames = 0;
@@ -599,8 +605,17 @@ async function initFromURL() {
   updateActivePill(poseKey);
   startTimer(meta.timer);
  
-  // Show T&C — camera starts only after user accepts
-  document.getElementById('tc-overlay').classList.remove('hidden');
+  const overlay = document.getElementById('tc-overlay');
+  if (sessionStorage.getItem(TERMS_ACCEPTED_KEY) === 'true') {
+    if (overlay) {
+      overlay.classList.add('hidden');
+      overlay.style.display = 'none';
+    }
+    startPose(activePose);
+  } else if (overlay) {
+    overlay.style.display = 'flex';
+    overlay.classList.remove('hidden');
+  }
 }
  
 async function startPose(poseKey) {
