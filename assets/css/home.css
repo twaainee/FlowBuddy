@@ -24,14 +24,29 @@
       inset: 0;
       background: linear-gradient(
         140deg,
-        #163d2e 0%,
-        #1e5c44 20%,
-        #267a5a 40%,
-        #30a070 60%,
-        #44c98a 78%,
-        #6fe0ae 92%,
-        #90eed0 100%
+        #163d2e,
+        #1e5c44,
+        #267a5a,
+        #30a070,
+        #44c98a,
+        #6fe0ae,
+        #90eed0,
+        #163d2e
       );
+      background-size: 400% 400%;
+      animation: heroGradient 15s ease infinite;
+    }
+
+    @keyframes heroGradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     /* Flowing wave lines overlay */
