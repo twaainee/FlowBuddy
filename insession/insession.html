@@ -1,256 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FlowBuddy — In Session</title>
   <link rel="stylesheet" href="../assets/css/insession.css" />
 </head>
+
 <body>
 
-<div id="tc-overlay" class="hidden" style="display: none;">
-  <div class="tc-modal">
- 
-    <!-- Header -->
-    <div class="tc-modal-header">
-      <div class="tc-shield">
-        <svg viewBox="0 0 20 20">
-          <path d="M10 2L3 5v5c0 4.5 3 8 7 9 4-1 7-4.5 7-9V5l-7-3z"/>
-        </svg>
+  <div id="tc-overlay" class="hidden" style="display: none;">
+    <div class="tc-modal">
+
+      <!-- Header -->
+      <div class="tc-modal-header">
+        <div class="tc-shield">
+          <svg viewBox="0 0 20 20">
+            <path d="M10 2L3 5v5c0 4.5 3 8 7 9 4-1 7-4.5 7-9V5l-7-3z" />
+          </svg>
+        </div>
+        <div class="tc-modal-header-text">
+          <h2>Privacy & Terms of Use</h2>
+          <p>Please read before starting your practice</p>
+        </div>
       </div>
-      <div class="tc-modal-header-text">
-        <h2>Privacy & Terms of Use</h2>
-        <p>Please read before starting your practice</p>
+
+      <!-- Scrollable body -->
+      <div class="tc-modal-body">
+
+        <!-- Privacy highlight -->
+        <div class="tc-highlight">
+          <svg viewBox="0 0 16 16">
+            <path d="M8 1L2 4v4c0 3.5 2.5 6.5 6 7 3.5-.5 6-3.5 6-7V4L8 1z" />
+            <polyline points="5,8 7,10 11,6" />
+          </svg>
+          <p>Your camera feed is processed entirely on your device. No video, image, or biometric data is ever recorded,
+            transmitted, or stored outside this browser session.</p>
+        </div>
+
+        <div class="tc-section">
+          <div class="tc-section-title">1. Camera Access</div>
+          <p>FlowBuddy requests access to your device camera solely to detect your body pose in real time. The video
+            stream is processed locally by Google's MediaPipe Pose library, which runs entirely within your browser. At
+            no point is any video data sent to FlowBuddy servers, third-party services, or any external destination.</p>
+        </div>
+
+        <div class="tc-divider"></div>
+
+        <div class="tc-section">
+          <div class="tc-section-title">2. Data Collection</div>
+          <p>FlowBuddy does not collect, store, or transmit any personal data. No account is required. No cookies are
+            set. Your session results (duration and alignment score) are passed between pages using URL parameters only,
+            and are discarded when you close the browser tab.</p>
+        </div>
+
+        <div class="tc-divider"></div>
+
+        <div class="tc-section">
+          <div class="tc-section-title">3. On-Device Processing</div>
+          <p>All pose analysis — including landmark detection, angle calculation, and form feedback — is computed in
+            real time on your own device using WebAssembly and JavaScript. This means your video never leaves your
+            machine, even for analysis.</p>
+        </div>
+
+        <div class="tc-divider"></div>
+
+        <div class="tc-section">
+          <div class="tc-section-title">4. Health Disclaimer</div>
+          <p>FlowBuddy is an educational tool and is not a substitute for professional medical or fitness advice. If you
+            have any injuries, medical conditions, or physical limitations, please consult a qualified healthcare
+            provider before participating in any yoga or exercise activity.</p>
+        </div>
+
+        <div class="tc-divider"></div>
+
+        <div class="tc-section">
+          <div class="tc-section-title">5. Your Consent</div>
+          <p>By checking the box below and clicking "Allow Camera Access", you confirm that you have read and understood
+            these terms, and that you consent to FlowBuddy using your device camera for local, real-time pose detection
+            only.</p>
+        </div>
+
+        <!-- Checkbox -->
+        <div class="tc-checkbox-row">
+          <input type="checkbox" id="tc-agree-checkbox" onchange="onTcCheckboxChange()" />
+          <label for="tc-agree-checkbox">
+            I have read and agree to the terms above. I understand that <strong>no video or personal data leaves this
+              device</strong> and that my camera feed is used solely for local pose detection.
+          </label>
+        </div>
+
       </div>
-    </div>
- 
-    <!-- Scrollable body -->
-    <div class="tc-modal-body">
- 
-      <!-- Privacy highlight -->
-      <div class="tc-highlight">
-        <svg viewBox="0 0 16 16">
-          <path d="M8 1L2 4v4c0 3.5 2.5 6.5 6 7 3.5-.5 6-3.5 6-7V4L8 1z"/>
-          <polyline points="5,8 7,10 11,6"/>
-        </svg>
-        <p>Your camera feed is processed entirely on your device. No video, image, or biometric data is ever recorded, transmitted, or stored outside this browser session.</p>
+
+      <!-- Footer buttons -->
+      <div class="tc-modal-footer">
+        <button class="btn-tc-accept" id="btn-tc-accept" disabled onclick="acceptTermsAndStart()">
+          <svg viewBox="0 0 14 14">
+            <path d="M2 7h10M8 3l4 4-4 4" />
+          </svg>
+          Continue to Camera Access
+        </button>
+        <button class="btn-tc-decline" onclick="declineTerms()">Decline &amp; Go Back</button>
       </div>
- 
-      <div class="tc-section">
-        <div class="tc-section-title">1. Camera Access</div>
-        <p>FlowBuddy requests access to your device camera solely to detect your body pose in real time. The video stream is processed locally by Google's MediaPipe Pose library, which runs entirely within your browser. At no point is any video data sent to FlowBuddy servers, third-party services, or any external destination.</p>
-      </div>
- 
-      <div class="tc-divider"></div>
- 
-      <div class="tc-section">
-        <div class="tc-section-title">2. Data Collection</div>
-        <p>FlowBuddy does not collect, store, or transmit any personal data. No account is required. No cookies are set. Your session results (duration and alignment score) are passed between pages using URL parameters only, and are discarded when you close the browser tab.</p>
-      </div>
- 
-      <div class="tc-divider"></div>
- 
-      <div class="tc-section">
-        <div class="tc-section-title">3. On-Device Processing</div>
-        <p>All pose analysis — including landmark detection, angle calculation, and form feedback — is computed in real time on your own device using WebAssembly and JavaScript. This means your video never leaves your machine, even for analysis.</p>
-      </div>
- 
-      <div class="tc-divider"></div>
- 
-      <div class="tc-section">
-        <div class="tc-section-title">4. Health Disclaimer</div>
-        <p>FlowBuddy is an educational tool and is not a substitute for professional medical or fitness advice. If you have any injuries, medical conditions, or physical limitations, please consult a qualified healthcare provider before participating in any yoga or exercise activity.</p>
-      </div>
- 
-      <div class="tc-divider"></div>
- 
-      <div class="tc-section">
-        <div class="tc-section-title">5. Your Consent</div>
-        <p>By checking the box below and clicking "Allow Camera Access", you confirm that you have read and understood these terms, and that you consent to FlowBuddy using your device camera for local, real-time pose detection only.</p>
-      </div>
- 
-      <!-- Checkbox -->
-      <div class="tc-checkbox-row">
-        <input type="checkbox" id="tc-agree-checkbox" onchange="onTcCheckboxChange()" />
-        <label for="tc-agree-checkbox">
-          I have read and agree to the terms above. I understand that <strong>no video or personal data leaves this device</strong> and that my camera feed is used solely for local pose detection.
-        </label>
-      </div>
- 
-    </div>
- 
-    <!-- Footer buttons -->
-    <div class="tc-modal-footer">
-      <button class="btn-tc-accept" id="btn-tc-accept" disabled onclick="acceptTermsAndStart()">
-        <svg viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
-        Allow Camera Access
-      </button>
-      <button class="btn-tc-decline" onclick="declineTerms()">Decline &amp; Go Back</button>
-    </div>
- 
-  </div>
-</div>
- 
-<div id="screen-session">
- 
-  <!-- ── Camera pane ── -->
-  <div class="camera-pane">
-    <video id="video" autoplay playsinline muted></video>
-    <canvas id="canvas"></canvas>
- 
-    <div id="loading-overlay">
-      <div class="spinner"></div>
-      <p>Starting camera…</p>
-    </div>
- 
-    <div id="cam-error">
-      <div class="err-icon">🚫</div>
-      <strong>Camera access denied</strong>
-      <p>Allow camera access in your browser settings and reload.</p>
-    </div>
- 
-    <button class="btn-close" onclick="endSession()">
-      <svg viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke-linecap="round"/></svg>
-    </button>
- 
-    <div class="live-badge">
-      <span class="live-dot"></span>LIVE FOCUS
-    </div>
- 
-    <div id="correction-toast" class="hidden">
-      <div class="toast-icon">
-        <svg viewBox="0 0 18 18" fill="none">
-          <path d="M9 2.5L16 15H2L9 2.5Z" fill="#ffe4e4" stroke="#e53e3e" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M9 8V11" stroke="#e53e3e" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="9" cy="13" r="0.8" fill="#e53e3e"/>
-        </svg>
-      </div>
-      <div class="toast-body">
-        <div class="toast-title" id="toast-title">Adjust your form</div>
-        <div class="toast-msg"  id="toast-msg">Step into frame and hold the pose.</div>
-      </div>
+
     </div>
   </div>
- 
-  <!-- ── Desktop Sidebar ── -->
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <div>
-        <div class="sb-pose-name" id="sb-pose-name">—</div>
-        <div class="sb-sanskrit"  id="sb-sanskrit">—</div>
+
+  <div id="screen-session">
+
+    <!-- ── Camera pane ── -->
+    <div class="camera-pane">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas"></canvas>
+
+      <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Starting camera…</p>
       </div>
-      <div class="sb-timer-wrap">
-        <div class="sb-timer" id="sb-timer">—:——</div>
-        <div class="sb-timer-label">Remaining</div>
+
+      <div id="cam-error">
+        <div class="err-icon">🚫</div>
+        <strong>Camera access denied</strong>
+        <p>Allow camera access in your browser settings and reload.</p>
       </div>
-    </div>
- 
-    <div class="score-section">
-      <div class="score-header">
-        <span class="score-label">Alignment Score</span>
-        <span class="score-pct" id="sb-score-pct">—</span>
-      </div>
-      <div class="score-bar-bg">
-        <div class="score-bar-fill" id="sb-score-bar"></div>
-      </div>
-    </div>
- 
-    <div class="sb-divider"></div>
-    <div class="switch-label">Switch Pose</div>
- 
-    <div class="pose-list">
-      <button class="pose-list-item" id="pli-mountain" onclick="switchPose('mountain')">
-        <div class="pli-left"><div class="pli-name">Mountain Pose</div><div class="pli-diff">Easy</div></div>
-        <span class="pli-chevron">›</span>
-        <span class="pli-dot" style="display:none"></span>
+
+      <button class="btn-close" onclick="endSession()">
+        <svg viewBox="0 0 14 14" fill="none">
+          <path d="M1 1L13 13M13 1L1 13" stroke-linecap="round" />
+        </svg>
       </button>
-      <button class="pose-list-item" id="pli-downdog" onclick="switchPose('downdog')">
-        <div class="pli-left"><div class="pli-name">Downward Dog</div><div class="pli-diff">Medium</div></div>
-        <span class="pli-chevron">›</span>
-        <span class="pli-dot" style="display:none"></span>
-      </button>
-      <button class="pose-list-item" id="pli-warrior" onclick="switchPose('warrior')">
-        <div class="pli-left"><div class="pli-name">Warrior I</div><div class="pli-diff">Intermediate</div></div>
-        <span class="pli-chevron">›</span>
-        <span class="pli-dot" style="display:none"></span>
-      </button>
-    </div>
- 
-    <div class="sb-spacer"></div>
- 
-    <a class="btn-end" href="#" onclick="endSession(); return false;">
-      <div class="btn-end-icon">
-        <svg viewBox="0 0 10 10"><rect x="1" y="1" width="3.5" height="8" rx="0.75"/><rect x="5.5" y="1" width="3.5" height="8" rx="0.75"/></svg>
+
+      <div class="live-badge">
+        <span class="live-dot"></span>LIVE FOCUS
       </div>
-      End Practice
-    </a>
-  </div>
- 
-  <!-- ── Mobile Bottom Panel ── -->
-  <div class="bottom-panel" id="mobile-bottom-panel">
-    <div class="bp-drag-handle" id="bp-drag-handle">
-      <div class="bp-drag-bar"></div>
-    </div>
- 
-    <div class="bp-topstrip">
-      <div>
-        <div class="bp-pose-name" id="bp-pose-name">—</div>
-        <div class="bp-sanskrit"  id="bp-sanskrit">—</div>
-      </div>
-      <div>
-        <div class="bp-timer" id="bp-timer">—:——</div>
-        <div class="bp-timer-lbl">Remaining</div>
+
+      <div id="correction-toast" class="hidden">
+        <div class="toast-icon">
+          <svg viewBox="0 0 18 18" fill="none">
+            <path d="M9 2.5L16 15H2L9 2.5Z" fill="#ffe4e4" stroke="#e53e3e" stroke-width="1.5"
+              stroke-linejoin="round" />
+            <path d="M9 8V11" stroke="#e53e3e" stroke-width="1.5" stroke-linecap="round" />
+            <circle cx="9" cy="13" r="0.8" fill="#e53e3e" />
+          </svg>
+        </div>
+        <div class="toast-body">
+          <div class="toast-title" id="toast-title">Adjust your form</div>
+          <div class="toast-msg" id="toast-msg">Step into frame and hold the pose.</div>
+        </div>
       </div>
     </div>
- 
-    <div class="bp-score">
-      <div class="bp-score-header">
-        <span class="bp-score-label">Alignment Score</span>
-        <span class="bp-score-pct" id="bp-score-pct">—</span>
+
+    <!-- ── Desktop Sidebar ── -->
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <div>
+          <div class="sb-pose-name" id="sb-pose-name">—</div>
+          <div class="sb-sanskrit" id="sb-sanskrit">—</div>
+        </div>
+        <div class="sb-timer-wrap">
+          <div class="sb-timer" id="sb-timer">—:——</div>
+          <div class="sb-timer-label">Remaining</div>
+        </div>
       </div>
-      <div class="bp-bar-bg">
-        <div class="bp-bar-fill" id="bp-score-bar"></div>
+
+      <div class="score-section">
+        <div class="score-header">
+          <span class="score-label">Alignment Score</span>
+          <span class="score-pct" id="sb-score-pct">—</span>
+        </div>
+        <div class="score-bar-bg">
+          <div class="score-bar-fill" id="sb-score-bar"></div>
+        </div>
       </div>
-    </div>
- 
-    <div class="bp-divider"></div>
-    <div class="bp-switch-label">Switch Pose</div>
- 
-    <div class="bp-pose-pills">
-      <button class="bp-pill" id="bpp-mountain" onclick="switchPose('mountain')">
-        <span class="bp-pill-name">Mountain Pose</span>
-        <span class="bp-pill-diff">Easy</span>
-      </button>
-      <button class="bp-pill" id="bpp-downdog" onclick="switchPose('downdog')">
-        <span class="bp-pill-name">Downward Dog</span>
-        <span class="bp-pill-diff">Medium</span>
-      </button>
-      <button class="bp-pill" id="bpp-warrior" onclick="switchPose('warrior')">
-        <span class="bp-pill-name">Warrior I</span>
-        <span class="bp-pill-diff">Intermediate</span>
-      </button>
-    </div>
- 
-    <div class="bp-end-wrap">
-      <a class="bp-btn-end" href="#" onclick="endSession(); return false;">
-        <div class="bp-btn-end-icon">
-          <svg viewBox="0 0 10 10"><rect x="1" y="1" width="3.5" height="8" rx="0.75"/><rect x="5.5" y="1" width="3.5" height="8" rx="0.75"/></svg>
+
+      <div class="sb-divider"></div>
+      <div class="switch-label">Switch Pose</div>
+
+      <div class="pose-list">
+        <button class="pose-list-item" id="pli-mountain" onclick="switchPose('mountain')">
+          <div class="pli-left">
+            <div class="pli-name">Mountain Pose</div>
+            <div class="pli-diff">Easy</div>
+          </div>
+          <span class="pli-chevron">›</span>
+          <span class="pli-dot" style="display:none"></span>
+        </button>
+        <button class="pose-list-item" id="pli-downdog" onclick="switchPose('downdog')">
+          <div class="pli-left">
+            <div class="pli-name">Downward Dog</div>
+            <div class="pli-diff">Medium</div>
+          </div>
+          <span class="pli-chevron">›</span>
+          <span class="pli-dot" style="display:none"></span>
+        </button>
+        <button class="pose-list-item" id="pli-warrior" onclick="switchPose('warrior')">
+          <div class="pli-left">
+            <div class="pli-name">Warrior I</div>
+            <div class="pli-diff">Intermediate</div>
+          </div>
+          <span class="pli-chevron">›</span>
+          <span class="pli-dot" style="display:none"></span>
+        </button>
+      </div>
+
+      <div class="sb-spacer"></div>
+
+      <a class="btn-end" href="#" onclick="endSession(); return false;">
+        <div class="btn-end-icon">
+          <svg viewBox="0 0 10 10">
+            <rect x="1" y="1" width="3.5" height="8" rx="0.75" />
+            <rect x="5.5" y="1" width="3.5" height="8" rx="0.75" />
+          </svg>
         </div>
         End Practice
       </a>
     </div>
- 
+
+    <!-- ── Mobile Bottom Panel ── -->
+    <div class="bottom-panel" id="mobile-bottom-panel">
+      <div class="bp-drag-handle" id="bp-drag-handle">
+        <div class="bp-drag-bar"></div>
+      </div>
+
+      <div class="bp-topstrip">
+        <div>
+          <div class="bp-pose-name" id="bp-pose-name">—</div>
+          <div class="bp-sanskrit" id="bp-sanskrit">—</div>
+        </div>
+        <div>
+          <div class="bp-timer" id="bp-timer">—:——</div>
+          <div class="bp-timer-lbl">Remaining</div>
+        </div>
+      </div>
+
+      <div class="bp-score">
+        <div class="bp-score-header">
+          <span class="bp-score-label">Alignment Score</span>
+          <span class="bp-score-pct" id="bp-score-pct">—</span>
+        </div>
+        <div class="bp-bar-bg">
+          <div class="bp-bar-fill" id="bp-score-bar"></div>
+        </div>
+      </div>
+
+      <div class="bp-divider"></div>
+      <div class="bp-switch-label">Switch Pose</div>
+
+      <div class="bp-pose-pills">
+        <button class="bp-pill" id="bpp-mountain" onclick="switchPose('mountain')">
+          <span class="bp-pill-name">Mountain Pose</span>
+          <span class="bp-pill-diff">Easy</span>
+        </button>
+        <button class="bp-pill" id="bpp-downdog" onclick="switchPose('downdog')">
+          <span class="bp-pill-name">Downward Dog</span>
+          <span class="bp-pill-diff">Medium</span>
+        </button>
+        <button class="bp-pill" id="bpp-warrior" onclick="switchPose('warrior')">
+          <span class="bp-pill-name">Warrior I</span>
+          <span class="bp-pill-diff">Intermediate</span>
+        </button>
+      </div>
+
+      <div class="bp-end-wrap">
+        <a class="bp-btn-end" href="#" onclick="endSession(); return false;">
+          <div class="bp-btn-end-icon">
+            <svg viewBox="0 0 10 10">
+              <rect x="1" y="1" width="3.5" height="8" rx="0.75" />
+              <rect x="5.5" y="1" width="3.5" height="8" rx="0.75" />
+            </svg>
+          </div>
+          End Practice
+        </a>
+      </div>
+
+    </div>
+
   </div>
- 
-</div>
 
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
 
-<script src="../assets/js/insession.js"></script>
+  <script src="../assets/js/insession.js"></script>
 </body>
+
 </html>
