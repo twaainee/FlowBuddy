@@ -17,16 +17,25 @@ const CONNECTIONS = [
  
 const POSE_SEGMENTS = {
   mountain: [
-    { ci:0, c:[[0,11],[0,12],[11,12],[11,23],[12,24],[23,24],[23,25],[24,26],[25,27],[26,28],[27,31],[28,32]] },
-    { ci:1, c:[[11,13],[13,15],[12,14],[14,16]] },
+    { id:'torso', c:[[0,11],[0,12],[11,12],[11,23],[12,24],[23,24]] },
+    { id:'legL', c:[[23,25],[25,27],[27,31]] },
+    { id:'legR', c:[[24,26],[26,28],[28,32]] },
+    { id:'armL', c:[[11,13],[13,15]] },
+    { id:'armR', c:[[12,14],[14,16]] },
   ],
   downdog: [
-    { ci:0, c:[[11,23],[12,24],[23,24],[23,25],[24,26],[25,27],[26,28],[27,31],[28,32]] },
-    { ci:1, c:[[0,11],[0,12],[11,12],[11,13],[13,15],[12,14],[14,16]] },
+    { id:'torso', c:[[0,11],[0,12],[11,12],[11,23],[12,24],[23,24]] },
+    { id:'legL', c:[[23,25],[25,27],[27,31]] },
+    { id:'legR', c:[[24,26],[26,28],[28,32]] },
+    { id:'armL', c:[[11,13],[13,15]] },
+    { id:'armR', c:[[12,14],[14,16]] },
   ],
   warrior: [
-    { ci:0, c:[[23,25],[24,26],[25,27],[26,28],[27,31],[28,32]] },
-    { ci:1, c:[[0,11],[0,12],[11,12],[11,13],[13,15],[12,14],[14,16]] },
+    { id:'torso', c:[[0,11],[0,12],[11,12],[11,23],[12,24],[23,24]] },
+    { id:'legL', c:[[23,25],[25,27],[27,31]] },
+    { id:'legR', c:[[24,26],[26,28],[28,32]] },
+    { id:'armL', c:[[11,13],[13,15]] },
+    { id:'armR', c:[[12,14],[14,16]] },
   ],
 };
  
@@ -82,29 +91,26 @@ function checkMountain(lm) {
   // Spine: average both sides, use hip as midpoint landmark
   const spineL = ang(lm[11], lm[23], lm[27]);
   const spineR = ang(lm[12], lm[24], lm[28]);
-  const spine  = (spineL + spineR) / 2;
-  const ss     = aStatus(spine, t.spineMin, t.spineWarn);
+  const ssL    = aStatus(spineL, t.spineMin, t.spineWarn);
+  const ssR    = aStatus(spineR, t.spineMin, t.spineWarn);
+  
+  const torsoLean = Math.abs(((lm[11].x + lm[12].x)/2) - ((lm[23].x + lm[24].x)/2));
+  const ts = torsoLean < 0.05 ? 'good' : torsoLean < 0.1 ? 'needwork' : 'wrong';
  
   // Arms: wrist x-position should be near hip x-position
   // Use absolute pixel-space normalised distance
   const dL  = Math.abs(lm[15].x - lm[23].x);
   const dR  = Math.abs(lm[16].x - lm[24].x);
-  const arm = (dL + dR) / 2;
-  const as  = arm < t.armGood ? 'good' : arm < t.armWarn ? 'needwork' : 'wrong';
+  const asL = dL < t.armGood ? 'good' : dL < t.armWarn ? 'needwork' : 'wrong';
+  const asR = dR < t.armGood ? 'good' : dR < t.armWarn ? 'needwork' : 'wrong';
  
+  // Priority order for toast: Torso, Arms, Legs
   return [
-    {
-      status: ss,
-      title:  'Stand Tall',
-      msg:    ss === 'wrong'
-        ? 'Your body is leaning. Stand upright and stack your spine from pelvis to crown.'
-        : 'Slightly adjust — lengthen upward and keep your gaze forward.',
-    },
-    {
-      status: as,
-      title:  'Relax Arms at Sides',
-      msg:    'Let your arms hang naturally close to your body, palms facing forward.',
-    },
+    { id: 'torso', status: ts, title: 'Stand Tall', msg: ts === 'wrong' ? 'Your body is leaning. Stand upright and stack your spine.' : 'Lengthen upward and keep your gaze forward.' },
+    { id: 'armL', status: asL, title: 'Relax Left Arm', msg: 'Let your left arm hang naturally close to your body.' },
+    { id: 'armR', status: asR, title: 'Relax Right Arm', msg: 'Let your right arm hang naturally close to your body.' },
+    { id: 'legL', status: ssL, title: 'Straighten Left Leg', msg: 'Engage your left leg and stand straight.' },
+    { id: 'legR', status: ssR, title: 'Straighten Right Leg', msg: 'Engage your right leg and stand straight.' },
   ];
 }
  
@@ -123,8 +129,7 @@ function checkDowndog(lm) {
   // (in normalised coords, smaller y = higher in frame)
   const hipY  = (lm[23].y + lm[24].y) / 2;
   const shY   = (lm[11].y + lm[12].y) / 2;
-  const wristY = (lm[15].y + lm[16].y) / 2;
- 
+  
   // Hip should be between shoulders and wrists vertically — forms the V peak
   // Good: hips clearly above shoulders (hipY < shY by at least 0.05)
   const hipLift = shY - hipY; // positive = hips higher than shoulders
@@ -136,24 +141,21 @@ function checkDowndog(lm) {
   // Check 2 — arms straight (shoulder–elbow–wrist angle)
   const armL = ang(lm[11], lm[13], lm[15]);
   const armR = ang(lm[12], lm[14], lm[16]);
-  const arm  = (armL + armR) / 2;
-  const as   = aStatus(arm, t.armMin, t.armWarn);
+  const asL  = aStatus(armL, t.armMin, t.armWarn);
+  const asR  = aStatus(armR, t.armMin, t.armWarn);
+
+  const legL = ang(lm[23], lm[25], lm[27]);
+  const legR = ang(lm[24], lm[26], lm[28]);
+  const lsL  = aStatus(legL, 145, 120);
+  const lsR  = aStatus(legR, 145, 120);
  
+  // Priority: Hips, Arms, Legs
   return [
-    {
-      status: hs,
-      title:  'Push Hips Higher',
-      msg:    hs === 'wrong'
-        ? 'Drive your hips up and back — your bottom should be the highest point.'
-        : 'Keep pressing your hips toward the ceiling for a deeper V shape.',
-    },
-    {
-      status: as,
-      title:  'Straighten Your Arms',
-      msg:    arm < t.armWarn
-        ? 'Your elbows are bent. Fully extend your arms and press through your palms.'
-        : 'Almost straight — extend just a little more through the elbows.',
-    },
+    { id: 'torso', status: hs, title: 'Push Hips Higher', msg: hs === 'wrong' ? 'Drive your hips up and back — your bottom should be the highest point.' : 'Keep pressing your hips toward the ceiling for a deeper V shape.' },
+    { id: 'armL', status: asL, title: 'Straighten Left Arm', msg: 'Fully extend your left arm and press through your palm.' },
+    { id: 'armR', status: asR, title: 'Straighten Right Arm', msg: 'Fully extend your right arm and press through your palm.' },
+    { id: 'legL', status: lsL, title: 'Straighten Left Leg', msg: 'Press your left heel toward the floor and straighten your leg.' },
+    { id: 'legR', status: lsR, title: 'Straighten Right Leg', msg: 'Press your right heel toward the floor and straighten your leg.' },
   ];
 }
  
@@ -169,42 +171,67 @@ function checkWarrior(lm) {
   // Front knee — pick the more bent side (smaller angle)
   const kL = ang(lm[23], lm[25], lm[27]);
   const kR = ang(lm[24], lm[26], lm[28]);
-  const fk = Math.min(kL, kR);
+  const isLeftFront = kL < kR;
  
-  let ks;
-  if (fk >= t.kneeMin && fk <= t.kneeMax)         ks = 'good';
-  else if (fk > t.kneeMax && fk <= t.kneeMax + 30) ks = 'needwork'; // not bent enough
-  else if (fk < t.kneeMin && fk >= t.kneeMin - 20) ks = 'needwork'; // slightly too deep
-  else                                               ks = 'wrong';
+  const fk = isLeftFront ? kL : kR;
+  let fks, fkm;
+  if (fk >= t.kneeMin && fk <= t.kneeMax) {
+    fks = 'good'; fkm = 'Good knee position — hold it steady.';
+  } else if (fk > t.kneeMax && fk <= t.kneeMax + 30) {
+    fks = 'needwork'; fkm = 'Bend your front knee deeper — aim for your thigh to be parallel to the floor.';
+  } else if (fk < t.kneeMin && fk >= t.kneeMin - 20) {
+    fks = 'needwork'; fkm = 'Ease back slightly — your front knee is bending past 90°.';
+  } else {
+    fks = 'wrong'; fkm = 'Check your front knee — it should be bent around 90°.';
+  }
  
+  const bk = isLeftFront ? kR : kL;
+  const bks = aStatus(bk, 145, 120);
+  const bkm = bks === 'good' ? 'Strong back leg.' : 'Straighten your back leg completely.';
+
+  const ksL = isLeftFront ? fks : bks;
+  const ksR = isLeftFront ? bks : fks;
+  const msgL = isLeftFront ? fkm : bkm;
+  const msgR = isLeftFront ? bkm : fkm;
+
   // Arms raised — wrists should be above (lower y than) shoulders
-  const wristY = (lm[15].y + lm[16].y) / 2;
-  const shY    = (lm[11].y + lm[12].y) / 2;
-  const armsLift = shY - wristY; // positive = wrists above shoulders
+  const wristYL = lm[15].y;
+  const wristYR = lm[16].y;
+  const shYL = lm[11].y;
+  const shYR = lm[12].y;
+  const armsLiftL = shYL - wristYL; // positive = wrists above shoulders
+  const armsLiftR = shYR - wristYR;
  
-  let as;
-  if (armsLift >= 0.15)       as = 'good';
-  else if (armsLift >= 0.0)   as = 'needwork';
-  else                         as = 'wrong';
+  let asL = armsLiftL >= 0.15 ? 'good' : armsLiftL >= 0.0 ? 'needwork' : 'wrong';
+  let asR = armsLiftR >= 0.15 ? 'good' : armsLiftR >= 0.0 ? 'needwork' : 'wrong';
+
+  const amL = asL === 'good' ? 'Good arm lift.' : 'Lift your left arm straight up toward the ceiling.';
+  const amR = asR === 'good' ? 'Good arm lift.' : 'Lift your right arm straight up toward the ceiling.';
  
-  return [
-    {
-      status: ks,
-      title:  'Adjust Front Knee',
-      msg:    fk > t.kneeMax
-        ? 'Bend your front knee deeper — aim for your thigh to be parallel to the floor.'
-        : fk < t.kneeMin
-          ? 'Ease back slightly — your front knee is bending past 90°.'
-          : 'Good knee position — hold it steady.',
-    },
-    {
-      status: as,
-      title:  'Raise Your Arms',
-      msg:    armsLift < 0
-        ? 'Lift both arms fully overhead — reach your fingertips toward the ceiling.'
-        : 'Extend a little higher — arms should be straight alongside your ears.',
-    },
-  ];
+  const torsoLean = Math.abs(((lm[11].x + lm[12].x)/2) - ((lm[23].x + lm[24].x)/2));
+  const ts = torsoLean < 0.15 ? 'good' : torsoLean < 0.25 ? 'needwork' : 'wrong';
+  const tm = ts === 'wrong' ? 'Keep your chest lifted and shoulders stacked over hips.' : 'Good posture.';
+
+  // Priority: Front Knee, Torso, Arms, Back Knee
+  const checks = [];
+  
+  if (isLeftFront) {
+    checks.push({ id: 'legL', status: ksL, title: 'Adjust Front Knee', msg: msgL });
+  } else {
+    checks.push({ id: 'legR', status: ksR, title: 'Adjust Front Knee', msg: msgR });
+  }
+
+  checks.push({ id: 'torso', status: ts, title: 'Torso Upright', msg: tm });
+  checks.push({ id: 'armL', status: asL, title: 'Raise Left Arm', msg: amL });
+  checks.push({ id: 'armR', status: asR, title: 'Raise Right Arm', msg: amR });
+
+  if (!isLeftFront) {
+    checks.push({ id: 'legL', status: ksL, title: 'Straighten Back Leg', msg: msgL });
+  } else {
+    checks.push({ id: 'legR', status: ksR, title: 'Straighten Back Leg', msg: msgR });
+  }
+
+  return checks;
 }
  
 const CHECKERS = { mountain:checkMountain, downdog:checkDowndog, warrior:checkWarrior };
@@ -230,8 +257,11 @@ function drawSkeleton(lm, checks) {
   // Build connection → color map
   const cmap = new Map();
   if (activePose && checks) {
+    const checksMap = {};
+    checks.forEach(c => { if(c.id) checksMap[c.id] = c; });
+
     (POSE_SEGMENTS[activePose] || []).forEach(seg => {
-      const color = SC[checks[seg.ci]?.status || 'neutral'];
+      const color = SC[checksMap[seg.id]?.status || 'neutral'];
       seg.c.forEach(([a, b]) => {
         cmap.set(`${a}-${b}`, color);
         cmap.set(`${b}-${a}`, color);
