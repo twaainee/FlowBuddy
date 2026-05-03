@@ -200,6 +200,15 @@
       flex-direction: column;
     }
 
+    .pose-card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 1.25rem;
+      background: #f0efe8;
+    }
+
     .pose-card h2 {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       font-size: clamp(1.25rem, 2.5vw, 1.65rem);

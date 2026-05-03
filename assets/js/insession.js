@@ -1,8 +1,8 @@
 // ─── Pose meta ───────────────────────────────────────
 const POSE_META = {
-  mountain: { name:'Mountain Pose', sanskrit:'Tadasana',             timer:300 },
-  downdog:  { name:'Downward Dog',  sanskrit:'Adho Mukha Svanasana', timer:600 },
-  warrior:  { name:'Warrior I',     sanskrit:'Virabhadrasana I',      timer:900 },
+  mountain: { name:'Mountain Pose', sanskrit:'Tadasana',             timer:300, img:'../assets/images/mountain_pose.avif' },
+  downdog:  { name:'Downward Dog',  sanskrit:'Adho Mukha Svanasana', timer:600, img:'../assets/images/downward_dog.avif' },
+  warrior:  { name:'Warrior I',     sanskrit:'Virabhadrasana I',      timer:900, img:'../assets/images/warrior_1.webp' },
 };
  
 // ─── Connections ─────────────────────────────────────
@@ -725,6 +725,12 @@ function updateSidebarMeta(poseKey, meta) {
   setIfExists('sb-sanskrit',  meta.sanskrit);
   setIfExists('bp-pose-name', meta.name);
   setIfExists('bp-sanskrit',  meta.sanskrit);
+
+  const sbImg = document.getElementById('sb-ref-img');
+  if (sbImg && meta.img) sbImg.src = meta.img;
+  
+  const pipImg = document.getElementById('pip-ref-img');
+  if (pipImg && meta.img) pipImg.src = meta.img;
 }
  
 function updateActivePill(k) {
