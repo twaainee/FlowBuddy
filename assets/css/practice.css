@@ -1,13 +1,21 @@
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Inter', -apple-system, sans-serif;
       background: #f5f3ec;
       color: #1a1a1a;
     }
- 
+
     /* ── Global font roles ── */
-    h1, h2, h3,
+    h1,
+    h2,
+    h3,
     .nav-logo,
     .btn-nav,
     .btn-start-flow,
@@ -15,7 +23,7 @@
     .tag {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
     }
- 
+
     /* ── Navbar ── */
     nav {
       background: #fff;
@@ -26,10 +34,10 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       gap: 1rem;
     }
- 
+
     .nav-logo {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       font-size: 1rem;
@@ -39,7 +47,7 @@
       letter-spacing: -0.01em;
       flex-shrink: 0;
     }
- 
+
     .nav-links {
       display: flex;
       align-items: center;
@@ -48,7 +56,7 @@
       flex: 1;
       justify-content: center;
     }
- 
+
     .nav-links a {
       font-size: 0.875rem;
       color: #888;
@@ -56,8 +64,10 @@
       transition: color 0.15s;
       white-space: nowrap;
     }
- 
-    .nav-links a:hover { color: #1a1a1a; }
+
+    .nav-links a:hover {
+      color: #1a1a1a;
+    }
 
     .nav-links a.active {
       color: #1a1a1a;
@@ -65,7 +75,7 @@
       border-bottom: 1.5px solid #4a6b58;
       padding-bottom: 1px;
     }
- 
+
     .btn-nav {
       background: #4a6b58;
       color: #fff;
@@ -80,9 +90,11 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
- 
-    .btn-nav:hover { background: #3a5646; }
- 
+
+    .btn-nav:hover {
+      background: #3a5646;
+    }
+
     /* Hamburger — mobile only */
     .nav-hamburger {
       display: none;
@@ -94,7 +106,7 @@
       padding: 4px;
       margin-left: auto;
     }
- 
+
     .nav-hamburger span {
       display: block;
       width: 22px;
@@ -103,19 +115,21 @@
       border-radius: 2px;
       transition: all 0.2s;
     }
- 
+
     /* Mobile nav drawer */
     .nav-drawer {
       display: none;
       flex-direction: column;
       background: #fff;
-      border-bottom: 1px solid rgba(0,0,0,0.08);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       padding: 1rem 1.5rem 1.25rem;
       gap: 1rem;
     }
- 
-    .nav-drawer.open { display: flex; }
- 
+
+    .nav-drawer.open {
+      display: flex;
+    }
+
     .nav-drawer a {
       font-size: 0.95rem;
       color: #555;
@@ -123,7 +137,7 @@
       padding: 0.4rem 0;
       border-bottom: 1px solid #f0efe8;
     }
- 
+
     .nav-drawer .drawer-cta {
       margin-top: 0.25rem;
       text-align: center;
@@ -135,14 +149,15 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 600;
     }
- 
+
     /* ── Hero ── */
     .hero {
       padding: 4rem 2rem 2.5rem;
       max-width: 1100px;
       margin: 0 auto;
+
     }
- 
+
     .hero h1 {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       font-size: clamp(2.5rem, 7vw, 4.25rem);
@@ -152,37 +167,39 @@
       letter-spacing: -0.02em;
       margin-bottom: 1rem;
     }
- 
+
     .hero p {
       font-size: 0.95rem;
       color: #666;
       line-height: 1.65;
       max-width: 460px;
     }
- 
+
     /* ── Cards ── */
     .cards-section {
       padding: 1.5rem 2rem 4rem;
       max-width: 1100px;
       margin: 0 auto;
+      margin-bottom: 3rem;
+
     }
- 
+
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1.25rem;
     }
- 
+
     .pose-card {
       background: #fff;
       border-radius: 18px;
       padding: 1.75rem 1.5rem 1.5rem;
-      border: 1px solid rgba(0,0,0,0.07);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
     }
- 
+
     .pose-card h2 {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       font-size: clamp(1.25rem, 2.5vw, 1.65rem);
@@ -191,7 +208,7 @@
       letter-spacing: -0.02em;
       margin-bottom: 0.8rem;
     }
- 
+
     .pose-card p {
       font-size: 0.875rem;
       color: #777;
@@ -199,7 +216,7 @@
       flex: 1;
       margin-bottom: 1.5rem;
     }
- 
+
     .card-tags {
       display: flex;
       align-items: center;
@@ -207,7 +224,7 @@
       margin-bottom: 1.25rem;
       flex-wrap: wrap;
     }
- 
+
     .tag {
       font-size: 0.72rem;
       font-weight: 600;
@@ -217,7 +234,7 @@
       padding: 4px 12px;
       white-space: nowrap;
     }
- 
+
     .btn-start-flow {
       display: flex;
       align-items: center;
@@ -235,22 +252,24 @@
       text-decoration: none;
       transition: background 0.15s;
     }
- 
-    .btn-start-flow:hover { background: #3a5646; }
- 
+
+    .btn-start-flow:hover {
+      background: #3a5646;
+    }
+
     /* ── Coming Soon ── */
     .coming-soon {
       background: #e8e5da;
       padding: 4.5rem 2rem;
       text-align: center;
     }
- 
+
     .coming-soon .lotus-icon {
       display: block;
       margin: 0 auto 1.5rem;
       opacity: 0.45;
     }
- 
+
     .coming-soon h2 {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -259,7 +278,7 @@
       letter-spacing: -0.02em;
       margin-bottom: 1rem;
     }
- 
+
     .coming-soon p {
       font-size: 0.9rem;
       color: #777;
@@ -267,7 +286,7 @@
       max-width: 400px;
       margin: 0 auto;
     }
- 
+
     /* ── Footer ── */
     footer {
       background: #fff;
@@ -277,68 +296,72 @@
       padding: 1.25rem 2rem;
       font-size: 0.8rem;
       color: #999;
-      border-top: 1px solid rgba(0,0,0,0.06);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
       flex-wrap: wrap;
       gap: 0.5rem;
     }
- 
-    footer .footer-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; color: #555; }
- 
+
+    footer .footer-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      color: #555;
+    }
+
     /* ══════════════════════════════
        RESPONSIVE BREAKPOINTS
     ══════════════════════════════ */
- 
+
     /* Tablet — 2 col cards */
     @media (max-width: 900px) {
       .cards-grid {
         grid-template-columns: repeat(2, 1fr);
       }
- 
+
       .nav-links {
         gap: 1.75rem;
       }
     }
- 
+
     /* Mobile — hide nav links, show hamburger */
     @media (max-width: 640px) {
       nav {
         padding: 0 1.25rem;
       }
- 
+
       .nav-links {
         display: none;
       }
- 
+
       .btn-nav {
         display: none;
       }
- 
+
       .nav-hamburger {
         display: flex;
       }
- 
+
       .hero {
         padding: 2.5rem 1.25rem 1.75rem;
       }
- 
+
       .cards-section {
         padding: 1rem 1.25rem 3rem;
       }
- 
+
       /* Single column on mobile */
       .cards-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
       }
- 
+
       .pose-card {
         padding: 1.35rem 1.25rem 1.25rem;
       }
- 
+
       .coming-soon {
         padding: 3rem 1.25rem;
       }
- 
+
       footer {
         flex-direction: column;
         align-items: flex-start;
