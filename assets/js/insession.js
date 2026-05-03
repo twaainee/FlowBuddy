@@ -716,3 +716,87 @@ function endSession() {
 }
  
 initFromURL();
+
+// ─── Draggable Bottom Panel (Mobile) ─────────────────
+const bottomPanel = document.getElementById('mobile-bottom-panel');
+const dragHandle = document.getElementById('bp-drag-handle');
+
+if (bottomPanel && dragHandle) {
+  let startY = 0;
+  let startTranslateY = 0;
+  let currentTranslateY = 0;
+  let isDragging = false;
+  let panelHeight = 0;
+  // We'll keep the top 70px visible when collapsed
+  const MIN_VISIBLE_HEIGHT = 70;
+  let maxTranslateY = 0;
+
+  function initDrag() {
+    panelHeight = bottomPanel.offsetHeight;
+    maxTranslateY = panelHeight - MIN_VISIBLE_HEIGHT;
+  }
+
+  function onPointerDown(e) {
+    if (e.target.closest('.bp-drag-handle')) {
+      isDragging = true;
+      startY = e.clientY || e.touches?.[0].clientY;
+      initDrag();
+      
+      startTranslateY = currentTranslateY;
+      bottomPanel.classList.add('dragging');
+    }
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    
+    // Prevent default scrolling on mobile while dragging
+    if (e.cancelable) e.preventDefault();
+    
+    const clientY = e.clientY || e.touches?.[0].clientY;
+    const deltaY = clientY - startY;
+    
+    let newY = startTranslateY + deltaY;
+    
+    // Constrain the dragging
+    if (newY < 0) newY = 0; // Can't drag higher than natural height
+    if (newY > maxTranslateY) newY = maxTranslateY; // Can't drag lower than MIN_VISIBLE_HEIGHT
+    
+    currentTranslateY = newY;
+    bottomPanel.style.transform = `translateY(${newY}px)`;
+  }
+
+  function onPointerUp(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    bottomPanel.classList.remove('dragging');
+    
+    // Snap to top or bottom based on threshold
+    const threshold = maxTranslateY / 2;
+    if (currentTranslateY > threshold) {
+      // Snap to bottom
+      currentTranslateY = maxTranslateY;
+    } else {
+      // Snap to top
+      currentTranslateY = 0;
+    }
+    bottomPanel.style.transform = `translateY(${currentTranslateY}px)`;
+  }
+
+  // Pointer events support mouse and touch seamlessly in most modern browsers
+  dragHandle.addEventListener('touchstart', onPointerDown, { passive: false });
+  document.addEventListener('touchmove', onPointerMove, { passive: false });
+  document.addEventListener('touchend', onPointerUp);
+
+  dragHandle.addEventListener('mousedown', onPointerDown);
+  document.addEventListener('mousemove', onPointerMove);
+  document.addEventListener('mouseup', onPointerUp);
+  
+  // Recalculate on resize
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 640) {
+      currentTranslateY = 0;
+      bottomPanel.style.transform = `translateY(0px)`;
+    }
+  });
+}
