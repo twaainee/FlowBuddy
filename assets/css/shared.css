@@ -3,6 +3,12 @@
    Used by: index.html, about/about.html, practice/practice.html
 ════════════════════════════════════════════ */
 
+/* ── Accessibility ── */
+*:focus-visible {
+  outline: 2px solid #4a6b58;
+  outline-offset: 2px;
+}
+
 /* ── Navbar ── */
 nav {
   background: #fff;
@@ -26,6 +32,14 @@ nav {
   letter-spacing: -0.01em;
   flex-shrink: 0;
   margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-logo-img {
+  height: 24px;
+  width: auto;
 }
 
 .nav-links {

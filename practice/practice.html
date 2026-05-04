@@ -18,13 +18,19 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="../assets/css/shared.css" />
   <link rel="stylesheet" href="../assets/css/practice.css" />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" as="script" crossorigin="anonymous" />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js" as="script" crossorigin="anonymous" />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" as="script" crossorigin="anonymous" />
 </head>
 
 <body>
 
   <!-- Navbar -->
   <nav>
-    <a class="nav-logo" href="../index.html">FlowBuddy</a>
+    <a class="nav-logo" href="../index.html">
+      <img src="../assets/images/logo.png" alt="" class="nav-logo-img" />
+      FlowBuddy
+    </a>
     <ul class="nav-links">
       <li><a href="../index.html">Sanctuary</a></li>
       <li><a href="../about/about.html">About Us</a></li>
@@ -44,6 +50,7 @@
     <a class="drawer-cta" href="../insession/insession.html">Begin Flow</a>
   </div>
 
+  <main>
   <!-- Hero -->
   <div class="hero animate-on-scroll">
     <h1 class="animate-on-scroll animate-delay-1">Choose Your Practice</h1>
@@ -57,7 +64,7 @@
     <div class="cards-grid">
 
       <div class="pose-card animate-on-scroll animate-delay-1">
-        <img class="pose-card-img" src="../assets/images/mountain_pose.avif" alt="Mountain Pose" />
+        <img class="pose-card-img" src="../assets/images/mountain_pose.avif" alt="Mountain Pose" loading="lazy" />
         <h2>Mountain Pose</h2>
         <p>The foundation of all standing poses. Ground yourself, find your center, and stand tall with...</p>
         <div class="card-tags">
@@ -68,7 +75,7 @@
       </div>
 
       <div class="pose-card animate-on-scroll animate-delay-2">
-        <img class="pose-card-img" src="../assets/images/downward_dog.avif" alt="Downward Dog Pose" />
+        <img class="pose-card-img" src="../assets/images/downward_dog.avif" alt="Downward Dog Pose" loading="lazy" />
         <h2>Downward Dog</h2>
         <p>An iconic pose that stretches the entire body. Build strength in your arms while lengthening your spine...
         </p>
@@ -80,7 +87,7 @@
       </div>
 
       <div class="pose-card animate-on-scroll animate-delay-3">
-        <img class="pose-card-img" src="../assets/images/warrior_1.webp" alt="Warrior I Pose" />
+        <img class="pose-card-img" src="../assets/images/warrior_1.webp" alt="Warrior I Pose" loading="lazy" />
         <h2>Warrior I</h2>
         <p>A powerful standing pose that builds focus, power, and stability. Stretch the chest and lungs,...</p>
         <div class="card-tags">
@@ -95,7 +102,7 @@
 
   <!-- Coming Soon -->
   <div class="coming-soon animate-on-scroll">
-    <svg class="lotus-icon animate-on-scroll animate-delay-1" width="52" height="52" viewBox="0 0 52 52" fill="none">
+    <svg class="lotus-icon animate-on-scroll animate-delay-1" width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true">
       <ellipse cx="26" cy="26" rx="5" ry="12" fill="none" stroke="#555" stroke-width="1.5" />
       <ellipse cx="26" cy="26" rx="5" ry="12" fill="none" stroke="#555" stroke-width="1.5"
         transform="rotate(45 26 26)" />
@@ -112,6 +119,8 @@
       Check back regularly for fresh content.
     </p>
   </div>
+
+  </main>
 
   <!-- Footer -->
   <footer>
