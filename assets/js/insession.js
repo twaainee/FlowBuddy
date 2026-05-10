@@ -405,6 +405,9 @@ let finalScore = 0;
 let personInFrame = false;
 let timerRunning  = false;
 let totalElapsedSec = 0;        // FIX #6: accumulates time across pose switches
+let activePose = 'mountain';
+let mpCamera = null;
+let timerWasRunningBeforeEndConfirm = false;
 const DEBOUNCE = 380;
 const TERMS_ACCEPTED_KEY = 'flowbuddyTermsAcceptedThisVisit';
  
@@ -417,6 +420,154 @@ let poseLocked = false;
 const video  = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx    = canvas.getContext('2d');
+
+function setCameraState(state) {
+  const badge = document.getElementById('camera-status-badge');
+  const text = document.getElementById('camera-status-text');
+  const labels = {
+    starting: 'Camera starting',
+    active: 'Camera active - on device',
+    off: 'Camera off',
+    error: 'Camera blocked'
+  };
+
+  if (badge) badge.dataset.state = state;
+  if (text) text.textContent = labels[state] || labels.off;
+}
+
+function stopCameraStream() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  if (mpCamera) { mpCamera.stop(); mpCamera = null; }
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+  ctx.clearRect(0, 0, canvas.width || 0, canvas.height || 0);
+  setCameraState('off');
+}
+
+function showCameraOffState() {
+  const offState = document.getElementById('camera-off-state');
+  if (offState) offState.classList.remove('hidden');
+}
+
+function hideCameraOffState() {
+  const offState = document.getElementById('camera-off-state');
+  if (offState) offState.classList.add('hidden');
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function showCameraError(options = {}) {
+  const errEl = document.getElementById('cam-error');
+  const loading = document.getElementById('loading-overlay');
+  if (loading) loading.style.display = 'none';
+  if (!errEl) return;
+  const icon = errEl.querySelector('.err-icon');
+  if (icon) {
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '';
+  }
+
+  setText('cam-error-title', options.title || 'Camera access is blocked');
+  setText('cam-error-message', options.message || 'FlowBuddy cannot start pose detection until your browser allows camera access for this page.');
+  const steps = options.steps || [
+    'Tap the lock or camera icon in your browser bar.',
+    'Set Camera to Allow for FlowBuddy.',
+    'Try again, or reload if your browser asks you to.'
+  ];
+  setText('cam-error-step-1', steps[0] || '');
+  setText('cam-error-step-2', steps[1] || '');
+  setText('cam-error-step-3', steps[2] || '');
+  setText('cam-error-note', options.note || 'Your camera stays off until permission is granted.');
+
+  errEl.style.display = 'flex';
+  setCameraState(options.state || 'error');
+}
+
+function getCameraErrorContent(error) {
+  const name = error?.name || '';
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    return {
+      title: 'Camera is unavailable in this browser',
+      message: 'This browser or page context does not support camera access.',
+      steps: [
+        'Open FlowBuddy in a current browser such as Chrome, Edge, Safari, or Firefox.',
+        'Use a secure page or localhost when testing camera features.',
+        'Return here and try the camera request again.'
+      ],
+      note: 'No camera stream was started.'
+    };
+  }
+
+  if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    return {
+      title: 'Camera needs a secure page',
+      message: 'Browsers only allow camera access from HTTPS pages or localhost development pages.',
+      steps: [
+        'Open this app from an HTTPS address or localhost.',
+        'Reload the session page after switching to a secure address.',
+        'Start the practice again.'
+      ],
+      note: 'FlowBuddy cannot request camera permission from an insecure page.'
+    };
+  }
+
+  if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+    return {
+      title: 'No camera was found',
+      message: 'FlowBuddy could not find an available camera on this device.',
+      steps: [
+        'Check that a camera is connected and enabled.',
+        'Close other apps or tabs that may be using it.',
+        'Try again after the camera is available.'
+      ],
+      note: 'Pose detection stays paused until a camera is available.'
+    };
+  }
+
+  if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') {
+    return {
+      title: 'Camera is already in use',
+      message: 'Your browser found a camera, but it could not start the video stream.',
+      steps: [
+        'Close other meeting, camera, or recording apps.',
+        'Check operating system camera privacy settings.',
+        'Try again after the camera is free.'
+      ],
+      note: 'FlowBuddy does not keep a camera stream open after this error.'
+    };
+  }
+
+  if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
+    return {
+      title: 'Camera permission is denied',
+      message: 'The browser blocked camera access for this page. FlowBuddy cannot see or analyze anything until you allow it.',
+      steps: [
+        'Tap the lock or camera icon in your browser bar.',
+        'Change Camera to Allow for FlowBuddy.',
+        'Press Try Again, or reload if the browser asks you to.'
+      ],
+      note: 'The live session stays local and no video is recorded.'
+    };
+  }
+
+  return {
+    title: 'Camera could not start',
+    message: 'FlowBuddy could not start the camera stream for this session.',
+    steps: [
+      'Check camera permission for this page.',
+      'Make sure another app is not using the camera.',
+      'Try again, or reload the page.'
+    ],
+    note: 'No video is recorded or uploaded.'
+  };
+}
  
 // ─── MediaPipe ───────────────────────────────────────
 // FIX #7: guard against CDN failure or offline state
@@ -456,14 +607,16 @@ try {
   console.error('MediaPipe failed to load:', mpErr);
   // Show a visible error so the user knows what happened
   document.addEventListener('DOMContentLoaded', () => {
-    const errEl = document.getElementById('cam-error');
-    if (errEl) {
-      errEl.style.display = 'flex';
-      const strong = errEl.querySelector('strong');
-      const p      = errEl.querySelector('p');
-      if (strong) strong.textContent = 'Pose detection unavailable';
-      if (p) p.textContent = 'FlowBuddy could not load the AI model. Please check your internet connection and reload.';
-    }
+    showCameraError({
+      title: 'Pose detection unavailable',
+      message: 'FlowBuddy could not load the AI model needed for on-device pose detection.',
+      steps: [
+        'Check your internet connection.',
+        'Reload the page so the pose model can load again.',
+        'Return to Practice if the model still cannot load.'
+      ],
+      note: 'The camera does not start when pose detection is unavailable.'
+    });
   });
 }
  
@@ -588,11 +741,7 @@ function hideTimerPausedState() {
 }
  
 function onTimerComplete() {
-  if (mpCamera) { mpCamera.stop(); mpCamera = null; }
-  if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
-  // FIX #6: use accumulated total, not just current pose timer
-  const alignment = smoothScore !== null ? Math.round(smoothScore) : 0;
-  window.location.href = `summary.html?duration=${totalElapsedSec}&alignment=${alignment}`;
+  completeSession(350);
 }
  
 function renderTimer() {
@@ -659,6 +808,10 @@ async function initFromURL() {
  
 async function startPose(poseKey) {
   activePose = poseKey;
+  hideCameraOffState();
+  setCameraState('starting');
+  stopCameraStream();
+  setCameraState('starting');
   // FIX #5: start fresh — no fake initial score
   smoothScore = null; scoreReadings = 0;
   poseLocked = false; poseLockedFrames = 0;
@@ -675,15 +828,21 @@ async function startPose(poseKey) {
  
   // FIX #7: abort early if MediaPipe failed to load
   if (!poseDetector) {
-    document.getElementById('loading-overlay').style.display = 'none';
-    const errEl = document.getElementById('cam-error');
-    if (errEl) {
-      errEl.style.display = 'flex';
-      const strong = errEl.querySelector('strong');
-      const p      = errEl.querySelector('p');
-      if (strong) strong.textContent = 'Pose detection unavailable';
-      if (p) p.textContent = 'FlowBuddy could not load the AI model. Please check your internet connection and reload.';
-    }
+    showCameraError({
+      title: 'Pose detection unavailable',
+      message: 'FlowBuddy could not load the AI model needed for on-device pose detection.',
+      steps: [
+        'Check your internet connection.',
+        'Reload the page so the pose model can load again.',
+        'Return to Practice if the model still cannot load.'
+      ],
+      note: 'The camera does not start when pose detection is unavailable.'
+    });
+    return;
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia || (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1')) {
+    showCameraError(getCameraErrorContent());
     return;
   }
  
@@ -694,9 +853,11 @@ async function startPose(poseKey) {
     mpCamera = new Camera(video, { onFrame: async()=>{ await pose.send({image:video}); }, width:640, height:480 });
     mpCamera.start();
     document.getElementById('loading-overlay').style.display = 'none';
+    setCameraState('active');
   } catch(e) {
-    document.getElementById('loading-overlay').style.display = 'none';
-    document.getElementById('cam-error').style.display = 'flex';
+    stopCameraStream();
+    hideCameraOffState();
+    showCameraError(getCameraErrorContent(e));
     console.error(e);
   }
 }
@@ -751,14 +912,60 @@ function updateActivePill(k) {
   });
 }
  
-function endSession() {
-  clearInterval(timerInterval);
-  if (mpCamera) { mpCamera.stop(); mpCamera = null; }
-  if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
-  // FIX #6: use accumulated total; FIX #5: guard null score
-  const alignment = smoothScore !== null ? Math.round(smoothScore) : 0;
-  window.location.href = `summary.html?duration=${totalElapsedSec}&alignment=${alignment}`;
+function requestEndSession() {
+  timerWasRunningBeforeEndConfirm = timerRunning;
+  if (timerRunning) pauseTimer();
+
+  const overlay = document.getElementById('end-confirm-overlay');
+  if (!overlay) return completeSession(0);
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.remove('hidden'));
 }
+
+function cancelEndSession() {
+  const overlay = document.getElementById('end-confirm-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => { overlay.style.display = 'none'; }, 240);
+  }
+
+  if (timerWasRunningBeforeEndConfirm && personInFrame && poseLocked) resumeTimer();
+  timerWasRunningBeforeEndConfirm = false;
+}
+
+function confirmEndSession() {
+  const overlay = document.getElementById('end-confirm-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    overlay.style.display = 'none';
+  }
+  completeSession(650);
+}
+
+function completeSession(delayMs = 0) {
+  stopCameraStream();
+  showCameraOffState();
+  const alignment = smoothScore !== null ? Math.round(smoothScore) : 0;
+  window.setTimeout(() => {
+    window.location.href = `summary.html?duration=${totalElapsedSec}&alignment=${alignment}`;
+  }, delayMs);
+}
+
+function retryCameraAccess() {
+  startPose(activePose);
+}
+
+function endSession() {
+  requestEndSession();
+}
+
+window.addEventListener('beforeunload', stopCameraStream);
+
+document.addEventListener('keydown', (event) => {
+  const overlay = document.getElementById('end-confirm-overlay');
+  const confirmOpen = overlay && overlay.style.display !== 'none' && !overlay.classList.contains('hidden');
+  if (event.key === 'Escape' && confirmOpen) cancelEndSession();
+});
  
 initFromURL();
 

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FlowBuddy privacy policy for on-device camera processing, pose detection, and session summaries." />
+  <meta name="keywords" content="FlowBuddy privacy, camera privacy, on-device pose detection, yoga app privacy" />
+  <meta property="og:title" content="FlowBuddy - Privacy Policy" />
+  <meta property="og:description" content="Learn how FlowBuddy handles camera access, local processing, and session data." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="../assets/images/logo.png" />
+  <title>FlowBuddy - Privacy Policy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/shared.css" />
+  <link rel="stylesheet" href="../assets/css/privacy.css" />
+</head>
+
+<body>
+  <nav>
+    <a class="nav-logo" href="../index.html">
+      <img src="../assets/images/logo.png" alt="" class="nav-logo-img" />
+      FlowBuddy
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Sanctuary</a></li>
+      <li><a href="../about/about.html">About Us</a></li>
+      <li><a href="../practice/practice.html">Practice</a></li>
+      <li><a href="privacy.html" class="active">Privacy</a></li>
+    </ul>
+    <a class="btn-nav" href="../practice/practice.html">Begin Flow</a>
+    <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="nav-drawer" id="nav-drawer">
+    <a href="../index.html">Sanctuary</a>
+    <a href="../about/about.html">About Us</a>
+    <a href="../practice/practice.html">Practice</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a class="drawer-cta" href="../practice/practice.html">Begin Flow</a>
+  </div>
+
+  <main>
+    <section class="privacy-hero animate-on-scroll">
+      <span class="policy-pill animate-on-scroll animate-delay-1">Privacy Policy</span>
+      <h1 class="animate-on-scroll animate-delay-2">Your camera stays with you.</h1>
+      <p class="animate-on-scroll animate-delay-3">FlowBuddy is designed around local, browser-based pose detection. Your video is used for live alignment feedback and is not recorded, uploaded, or stored by FlowBuddy.</p>
+    </section>
+
+    <section class="privacy-summary animate-on-scroll">
+      <div class="summary-item">
+        <span class="summary-icon">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2" y="5" width="12" height="8" rx="2" />
+            <circle cx="8" cy="9" r="2.2" />
+            <path d="M5 5l1-2h4l1 2" />
+          </svg>
+        </span>
+        <h2>No Recording</h2>
+        <p>FlowBuddy does not record camera video, take snapshots, or save biometric media.</p>
+      </div>
+      <div class="summary-item">
+        <span class="summary-icon">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 1.5L3 4v4c0 3.1 2 5.5 5 6.5 3-1 5-3.4 5-6.5V4L8 1.5z" />
+            <path d="M5.6 8.1l1.5 1.5 3.4-3.5" />
+          </svg>
+        </span>
+        <h2>On Device</h2>
+        <p>Pose landmarks are calculated in your browser during the live session.</p>
+      </div>
+      <div class="summary-item">
+        <span class="summary-icon">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M3 4h10" />
+            <path d="M5 8h6" />
+            <path d="M7 12h2" />
+          </svg>
+        </span>
+        <h2>Minimal Data</h2>
+        <p>Session summary values are temporary and passed only between local pages.</p>
+      </div>
+    </section>
+
+    <section class="policy-content">
+      <article class="policy-section animate-on-scroll">
+        <h2>Camera Access</h2>
+        <p>FlowBuddy asks for camera permission only when you start a live practice. The camera feed is used to show your viewfinder and run pose detection locally in your browser. You can deny permission, close the page, or end the session at any time.</p>
+      </article>
+
+      <article class="policy-section animate-on-scroll">
+        <h2>What FlowBuddy Does Not Collect</h2>
+        <p>FlowBuddy does not collect names, accounts, email addresses, camera recordings, photos, audio, biometric profiles, or long-term practice history. No camera feed is sent to a FlowBuddy server.</p>
+      </article>
+
+      <article class="policy-section animate-on-scroll">
+        <h2>Session Summaries</h2>
+        <p>When a practice ends, FlowBuddy shows a summary using your duration and alignment score. Those values are passed through the page URL so the summary can display them, then disappear when you leave or close the tab.</p>
+      </article>
+
+      <article class="policy-section animate-on-scroll">
+        <h2>Third-Party Libraries</h2>
+        <p>FlowBuddy uses MediaPipe pose detection scripts loaded from a CDN. The pose analysis still runs inside your browser. If the model cannot load, the camera screen shows an error instead of starting the session.</p>
+      </article>
+
+      <article class="policy-section animate-on-scroll">
+        <h2>Health And Safety</h2>
+        <p>FlowBuddy provides educational alignment feedback and is not medical advice. Stop if you feel pain, dizziness, or discomfort, and speak with a qualified professional before practicing with injuries or medical conditions.</p>
+      </article>
+
+      <article class="policy-section animate-on-scroll">
+        <h2>Your Controls</h2>
+        <p>You can block camera permission in your browser, use the End Practice control to turn the camera off, or close the browser tab. If camera access is blocked, FlowBuddy provides steps to update permission safely.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <span class="footer-logo">FlowBuddy</span>
+    <span>&copy; 2026 FlowBuddy. Digital Sanctuary for Yoga.</span>
+    <span class="footer-links"><a href="privacy.html">Privacy Policy</a></span>
+  </footer>
+
+  <script src="../assets/js/nav.js"></script>
+</body>
+
+</html>

@@ -3,6 +3,9 @@
       height: 100%;
       font-family: 'Inter', -apple-system, sans-serif;
       background: #eceae2;
+      color: #1a1a1a;
+      overflow: hidden;
+    }
  
     /* ── Global font roles ── */
     h1, h2, h3,
@@ -12,13 +15,14 @@
     .switch-label, .bp-switch-label,
     .pli-name, .bp-pill-name,
     .btn-end, .bp-btn-end,
+    .btn-camera-retry, .btn-camera-back,
+    .btn-confirm-end, .btn-confirm-cancel,
     .live-badge,
+    .privacy-badge,
     .toast-body .toast-title,
-    .cam-modal h2 {
+    .cam-modal h2,
+    .confirm-modal h2 {
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-    }
-      color: #1a1a1a;
-      overflow: hidden;
     }
  
     /* ══════════════════════════════
@@ -62,11 +66,82 @@
       display: none; position: absolute; inset: 0;
       background: rgba(0,0,0,0.88); flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 0.5rem; z-index: 30; text-align: center; padding: 2rem; color: #fff;
+      gap: 0.75rem; z-index: 30; text-align: center; padding: 2rem; color: #fff;
     }
-    #cam-error .err-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    #cam-error .err-icon {
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0; margin-bottom: 0.2rem;
+    }
+    #cam-error .err-icon::before {
+      content: '!';
+      width: 22px; height: 22px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    #cam-error .err-icon svg {
+      width: 24px; height: 24px;
+      stroke: #fff; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
     #cam-error strong { font-size: 0.95rem; display: block; margin-bottom: 0.35rem; }
-    #cam-error p { font-size: 0.8rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+    #cam-error p { max-width: 370px; font-size: 0.8rem; color: rgba(255,255,255,0.65); line-height: 1.6; }
+    #cam-error .cam-error-note {
+      max-width: 370px;
+      margin-top: -0.15rem;
+      color: rgba(255,255,255,0.52);
+      font-size: 0.74rem;
+    }
+    .cam-error-steps {
+      width: min(100%, 370px);
+      margin: 0.3rem 0 0;
+      padding: 0.85rem 1rem 0.85rem 2rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      text-align: left;
+    }
+    .cam-error-steps li {
+      padding-left: 0.15rem;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.74);
+      line-height: 1.55;
+    }
+    .cam-error-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.55rem;
+      margin-top: 0.25rem;
+    }
+    .btn-camera-retry,
+    .btn-camera-back,
+    .btn-camera-privacy {
+      border: none;
+      border-radius: 99px;
+      padding: 0.72rem 1.1rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-camera-retry { background: #fff; color: #1d3428; }
+    .btn-camera-back { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.82); }
+    .btn-camera-privacy { background: transparent; color: rgba(255,255,255,0.72); }
+    .btn-camera-retry:hover,
+    .btn-camera-back:hover,
+    .btn-camera-privacy:hover { transform: translateY(-1px); }
  
     /* Close button */
     .btn-close {
@@ -92,7 +167,74 @@
       width: 6px; height: 6px; border-radius: 50%; background: #e53e3e;
       animation: pdot 1.5s ease-in-out infinite;
     }
+    .live-badge[data-state="active"] .live-dot { background: #22c55e; }
+    .live-badge[data-state="off"] .live-dot,
+    .live-badge[data-state="error"] .live-dot {
+      background: #9ca3af;
+      animation: none;
+    }
     @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    .privacy-badge {
+      position: absolute; top: 52px; right: 14px;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.78); backdrop-filter: blur(6px);
+      border-radius: 99px; padding: 5px 10px;
+      font-size: 0.66rem; font-weight: 700; color: #44544c; z-index: 15;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+    .privacy-lock {
+      width: 14px; height: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .privacy-lock svg {
+      width: 13px; height: 13px;
+      stroke: #3d6352; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .camera-off-state {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(10, 18, 14, 0.78);
+      z-index: 32;
+      transition: opacity 0.24s;
+    }
+    .camera-off-state.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .camera-off-card {
+      width: min(100% - 2rem, 340px);
+      background: rgba(255,255,255,0.94);
+      border-radius: 16px;
+      padding: 1.4rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.26);
+    }
+    .camera-off-icon {
+      width: 42px; height: 42px;
+      margin: 0 auto 0.8rem;
+      border-radius: 12px;
+      background: #eef6f1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .camera-off-icon svg {
+      width: 22px; height: 22px;
+      stroke: #3d6352; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .camera-off-card strong {
+      display: block;
+      font-size: 1rem;
+      color: #1a1a1a;
+      margin-bottom: 0.35rem;
+    }
+    .camera-off-card p {
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.6;
+    }
  
     /* Correction toast */
     #correction-toast {
@@ -511,6 +653,39 @@
       line-height: 1.6;
       font-weight: 500;
     }
+
+    .tc-permission-note {
+      display: grid;
+      gap: 0.65rem;
+      margin: 1.1rem 0 0.2rem;
+    }
+
+    .tc-note-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.75rem 0.85rem;
+      background: #f7f5ef;
+      border: 1px solid #ece8de;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      color: #4d4d4d;
+      line-height: 1.55;
+    }
+
+    .tc-note-icon {
+      width: 24px; height: 24px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background: #e8f1eb;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .tc-note-icon svg {
+      width: 15px; height: 15px;
+      stroke: #3d6352; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
  
     /* Divider */
     .tc-divider {
@@ -599,3 +774,94 @@
     }
  
     .btn-tc-decline:hover { color: #555; }
+
+    /* Confirmation modal */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(10, 25, 18, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 210;
+      transition: opacity 0.24s;
+    }
+
+    .confirm-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .confirm-modal {
+      width: min(100%, 380px);
+      background: #fff;
+      border-radius: 18px;
+      padding: 1.45rem;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+      text-align: center;
+    }
+
+    .confirm-icon {
+      width: 44px; height: 44px;
+      margin: 0 auto 0.85rem;
+      border-radius: 13px;
+      background: #eef6f1;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .confirm-icon svg {
+      width: 22px; height: 22px;
+      stroke: #3d6352; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .confirm-modal h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 0.45rem;
+    }
+
+    .confirm-modal p {
+      font-size: 0.82rem;
+      color: #666;
+      line-height: 1.65;
+      margin-bottom: 1.15rem;
+    }
+
+    .confirm-actions {
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .btn-confirm-end,
+    .btn-confirm-cancel {
+      width: 100%;
+      border: none;
+      border-radius: 99px;
+      padding: 0.82rem 1rem;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-confirm-end {
+      background: #3d6352;
+      color: #fff;
+    }
+
+    .btn-confirm-end:hover { background: #315545; }
+
+    .btn-confirm-cancel {
+      background: transparent;
+      color: #888;
+    }
+
+    .btn-confirm-cancel:hover {
+      background: #f5f3ec;
+      color: #555;
+    }
