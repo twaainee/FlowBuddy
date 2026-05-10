@@ -776,9 +776,15 @@ if (bottomPanel && dragHandle) {
   const MIN_VISIBLE_HEIGHT = 70;
   let maxTranslateY = 0;
 
+  function updatePanelVisibleHeight() {
+    const visibleHeight = Math.max(MIN_VISIBLE_HEIGHT, panelHeight - currentTranslateY);
+    document.documentElement.style.setProperty('--mobile-panel-visible-height', `${visibleHeight}px`);
+  }
+
   function initDrag() {
     panelHeight = bottomPanel.offsetHeight;
     maxTranslateY = panelHeight - MIN_VISIBLE_HEIGHT;
+    updatePanelVisibleHeight();
   }
 
   function onPointerDown(e) {
@@ -809,6 +815,7 @@ if (bottomPanel && dragHandle) {
     
     currentTranslateY = newY;
     bottomPanel.style.transform = `translateY(${newY}px)`;
+    updatePanelVisibleHeight();
   }
 
   function onPointerUp(e) {
@@ -826,6 +833,7 @@ if (bottomPanel && dragHandle) {
       currentTranslateY = 0;
     }
     bottomPanel.style.transform = `translateY(${currentTranslateY}px)`;
+    updatePanelVisibleHeight();
   }
 
   // Pointer events support mouse and touch seamlessly in most modern browsers
@@ -840,8 +848,12 @@ if (bottomPanel && dragHandle) {
   // Recalculate on resize
   window.addEventListener('resize', () => {
     if (window.innerWidth <= 640) {
+      initDrag();
       currentTranslateY = 0;
       bottomPanel.style.transform = `translateY(0px)`;
+      updatePanelVisibleHeight();
     }
   });
+
+  initDrag();
 }

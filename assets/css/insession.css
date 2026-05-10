@@ -238,10 +238,10 @@
         z-index: 1;
       }
  
-      /* Toast narrower + higher on mobile to not clash with panel */
+      /* Keep correction feedback below the reference image and above the sheet. */
       #correction-toast {
-        bottom: auto;
-        top: 20px;
+        top: auto;
+        bottom: calc(var(--mobile-panel-visible-height, 70px) + 12px);
         left: 50%;
         transform: translateX(-50%);
         width: calc(100% - 24px);
@@ -251,7 +251,7 @@
         border-radius: 12px;
         z-index: 35;
       }
-      #correction-toast.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, -6px); }
+      #correction-toast.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, 6px); }
  
       /* Hide desktop sidebar */
       .sidebar { display: none; }
