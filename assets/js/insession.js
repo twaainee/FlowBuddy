@@ -406,6 +406,7 @@ let personInFrame = false;
 let timerRunning  = false;
 let totalElapsedSec = 0;        // FIX #6: accumulates time across pose switches
 let activePose = 'mountain';
+let poseStats = {};
 let mpCamera = null;
 let timerWasRunningBeforeEndConfirm = false;
 const DEBOUNCE = 380;
@@ -420,6 +421,106 @@ let poseLocked = false;
 const video  = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx    = canvas.getContext('2d');
+
+function createPoseStat() {
+  return {
+    seconds: 0,
+    readings: 0,
+    scoreTotal: 0,
+    statusCounts: { good: 0, needwork: 0, wrong: 0 },
+    focusCounts: {},
+    lastAdvice: ''
+  };
+}
+
+function ensurePoseStat(poseKey) {
+  if (!poseStats[poseKey]) poseStats[poseKey] = createPoseStat();
+  return poseStats[poseKey];
+}
+
+function resetPracticeStats() {
+  poseStats = {};
+  Object.keys(POSE_META).forEach(poseKey => { poseStats[poseKey] = createPoseStat(); });
+}
+
+function segmentLabel(id) {
+  const labels = {
+    torso: 'posture and torso stacking',
+    armL: 'left arm alignment',
+    armR: 'right arm alignment',
+    legL: 'left leg alignment',
+    legR: 'right leg alignment'
+  };
+  return labels[id] || 'overall alignment';
+}
+
+function recordPoseSample(poseKey, rawScore, checks) {
+  const stat = ensurePoseStat(poseKey);
+  stat.readings++;
+  stat.scoreTotal += rawScore;
+
+  checks.forEach(check => {
+    if (stat.statusCounts[check.status] !== undefined) stat.statusCounts[check.status]++;
+    if (check.status !== 'good' && check.id) {
+      stat.focusCounts[check.id] = (stat.focusCounts[check.id] || 0) + 1;
+      stat.lastAdvice = check.msg;
+    }
+  });
+}
+
+function buildSessionSummary() {
+  const poses = {};
+  let bestPose = activePose;
+  let focusPose = activePose;
+  let bestScore = -1;
+  let lowestScore = 101;
+  let focusArea = 'overall alignment';
+  let focusAdvice = 'Keep practicing with slow, steady holds.';
+  let mostFocusCount = 0;
+
+  Object.keys(poseStats).forEach(poseKey => {
+    const stat = poseStats[poseKey];
+    const average = stat.readings ? Math.round(stat.scoreTotal / stat.readings) : 0;
+    poses[poseKey] = {
+      name: POSE_META[poseKey]?.name || poseKey,
+      seconds: stat.seconds,
+      alignment: average,
+      readings: stat.readings,
+      statusCounts: stat.statusCounts
+    };
+
+    if (stat.readings && average > bestScore) {
+      bestScore = average;
+      bestPose = poseKey;
+    }
+
+    if (stat.readings && average < lowestScore) {
+      lowestScore = average;
+      focusPose = poseKey;
+    }
+
+    Object.entries(stat.focusCounts).forEach(([area, count]) => {
+      if (count > mostFocusCount) {
+        mostFocusCount = count;
+        focusArea = segmentLabel(area);
+        focusAdvice = stat.lastAdvice || focusAdvice;
+        focusPose = poseKey;
+      }
+    });
+  });
+
+  const alignment = smoothScore !== null ? Math.round(smoothScore) : 0;
+  return {
+    duration: totalElapsedSec,
+    alignment,
+    activePose,
+    bestPose,
+    focusPose,
+    focusArea,
+    focusAdvice,
+    poses
+  };
+}
 
 function setCameraState(state) {
   const badge = document.getElementById('camera-status-badge');
@@ -627,6 +728,7 @@ const pose = poseDetector;
 function updateUI(checks) {
   const prio = { wrong:0, needwork:0.5, good:1 };
   const raw  = checks.reduce((s,c) => s + (prio[c.status] || 0), 0) / checks.length * 100;
+  recordPoseSample(activePose, raw, checks);
  
   // FIX #5: seed from first real reading, not 85
   if (smoothScore === null) {
@@ -710,6 +812,7 @@ function resumeTimer() {
   timerInterval = setInterval(() => {
     timerSec = Math.max(0, timerSec - 1);
     totalElapsedSec++;            // FIX #6: accumulate across all poses
+    ensurePoseStat(activePose).seconds++;
     renderTimer();
     if (!timerSec) {
       clearInterval(timerInterval);
@@ -779,6 +882,7 @@ function declineTerms() {
 async function initFromURL() {
   const params  = new URLSearchParams(window.location.search);
   const poseKey = params.get('pose') || 'mountain';
+  resetPracticeStats();
   const navEntry = performance.getEntriesByType('navigation')[0];
   if (navEntry?.type === 'reload') {
     sessionStorage.removeItem(TERMS_ACCEPTED_KEY);
@@ -945,9 +1049,24 @@ function confirmEndSession() {
 function completeSession(delayMs = 0) {
   stopCameraStream();
   showCameraOffState();
-  const alignment = smoothScore !== null ? Math.round(smoothScore) : 0;
+  const sessionSummary = buildSessionSummary();
+  let sessionId = '';
+
+  if (window.FlowBuddyHistory?.saveSession) {
+    const savedSession = window.FlowBuddyHistory.saveSession(sessionSummary);
+    sessionId = savedSession?.id || '';
+    if (sessionId) sessionStorage.setItem('flowbuddyLastSessionId', sessionId);
+  }
+
+  const params = new URLSearchParams({
+    duration: String(sessionSummary.duration),
+    alignment: String(sessionSummary.alignment),
+    pose: sessionSummary.activePose
+  });
+  if (sessionId) params.set('session', sessionId);
+
   window.setTimeout(() => {
-    window.location.href = `summary.html?duration=${totalElapsedSec}&alignment=${alignment}`;
+    window.location.href = `summary.html?${params.toString()}`;
   }, delayMs);
 }
 

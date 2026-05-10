@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Review your FlowBuddy yoga session summary. See your practice duration and alignment score to track your wellness journey." />
+  <meta name="description" content="Review your FlowBuddy yoga session summary with alignment insights, focus cues, and locally saved progress." />
   <meta name="keywords" content="yoga session summary, yoga alignment score, practice duration, yoga progress" />
   <link rel="icon" type="image/png" href="../assets/images/logo.png" />
-  <title>FlowBuddy — Namaste</title>
+  <title>FlowBuddy - Session Summary</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="../assets/css/summary.css">
 </head>
@@ -19,95 +19,175 @@
 <body>
 
   <main class="page">
-
-    <h1 class="namaste">Namaste</h1>
-
-    <p class="subtitle">
-      Your breath has settled, your mind is still. Carry this sanctuary
-      within you as you move back into the world.
-    </p>
-
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat-row">
-        <span class="stat-label">Duration</span>
-        <span class="stat-line"></span>
-        <span class="stat-value" id="stat-duration">—</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Alignment</span>
-        <span class="stat-line"></span>
-        <span class="stat-value" id="stat-alignment">—</span>
-      </div>
-    </div>
-
-    <!-- Quote -->
-    <div class="quote-wrap">
-      <div class="quote-marks">99</div>
-      <p class="quote-text" id="quote-text">
-        "The soul always knows what to do to heal itself. The challenge is to silence the mind."
+    <section class="summary-hero">
+      <p class="eyebrow">Practice complete</p>
+      <h1>Namaste</h1>
+      <p class="subtitle">
+        Your camera is off. Here is a quick read on what went well and what to revisit next.
       </p>
-      <p class="quote-author" id="quote-author">Caroline Myss</p>
+    </section>
+
+    <section class="stats-grid" aria-label="Session stats">
+      <div class="stat-card">
+        <span class="stat-label">Duration</span>
+        <strong class="stat-value" id="stat-duration">-</strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Alignment</span>
+        <strong class="stat-value" id="stat-alignment">-</strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Best Pose</span>
+        <strong class="stat-value stat-pose" id="stat-best-pose">-</strong>
+      </div>
+    </section>
+
+    <section class="insight-panel" aria-labelledby="insight-title">
+      <div>
+        <p class="panel-label">Next focus</p>
+        <h2 id="insight-title">Keep building steady form.</h2>
+        <p id="insight-copy">Complete a session to see personalized form notes here.</p>
+      </div>
+      <div class="focus-chip" id="focus-chip">Overall alignment</div>
+    </section>
+
+    <section class="pose-breakdown" aria-labelledby="breakdown-title">
+      <div class="section-heading">
+        <h2 id="breakdown-title">Pose Breakdown</h2>
+        <p>Saved on this device only.</p>
+      </div>
+      <div class="breakdown-list" id="breakdown-list"></div>
+    </section>
+
+    <section class="recent-panel" aria-labelledby="recent-title">
+      <div class="section-heading">
+        <h2 id="recent-title">Recent Progress</h2>
+        <p id="recent-count">No saved sessions yet.</p>
+      </div>
+      <div class="mini-history" id="mini-history"></div>
+    </section>
+
+    <div class="actions">
+      <a class="btn-primary" id="btn-try-again" href="../practice/practice.html">
+        Try Again
+        <svg viewBox="0 0 14 14" aria-hidden="true">
+          <path d="M2 7h10M8 3l4 4-4 4" />
+        </svg>
+      </a>
+      <a class="btn-secondary" href="../progress/progress.html">View Progress</a>
+      <a class="btn-ghost" href="../practice/practice.html">Choose Another Pose</a>
     </div>
-
-    <!-- CTA -->
-    <a class="btn-return" href="../practice/practice.html">
-      Return to Practice
-      <svg viewBox="0 0 14 14" aria-hidden="true">
-        <path d="M2 7h10M8 3l4 4-4 4" />
-      </svg>
-    </a>
-
   </main>
 
+  <script src="../assets/js/session-history.js"></script>
   <script>
-    // ─── Yoga quotes pool ───────────────────────────────
-    const QUOTES = [
-      { text: '"The soul always knows what to do to heal itself. The challenge is to silence the mind."', author: 'Caroline Myss' },
-      { text: '"Yoga is the journey of the self, through the self, to the self."', author: 'The Bhagavad Gita' },
-      { text: '"The nature of yoga is to shine the light of awareness into the darkest corners of the body."', author: 'Jason Crandell' },
-      { text: '"Inhale the future, exhale the past."', author: 'Unknown' },
-      { text: '"You cannot always control what goes on outside. But you can always control what goes on inside."', author: 'Wayne Dyer' },
-      { text: '"True yoga is not about the shape of your body, but the shape of your life."', author: 'Aadil Palkhivala' },
-      { text: '"Yoga does not remove us from the reality or responsibilities of everyday life but rather places our feet firmly and more securely in the practical ground of experience."', author: 'Donna Farhi' },
-    ];
-
-    // ─── Read URL params ────────────────────────────────
     function init() {
       const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session') || sessionStorage.getItem('flowbuddyLastSessionId');
+      const fallbackPose = params.get('pose') || 'mountain';
+      const session = FlowBuddyHistory.getSession(sessionId) || buildFallbackSession(params, fallbackPose);
 
-      // Duration — passed as total seconds practiced
-      const durationRaw = parseInt(params.get('duration') || '0', 10);
-      const durationSec = Number.isFinite(durationRaw) ? clamp(durationRaw, 0, 6 * 60 * 60) : 0; // max 6 hours
-      document.getElementById('stat-duration').textContent = formatDuration(durationSec);
-
-      // Alignment score
-      const alignmentRaw = parseInt(params.get('alignment') || '0', 10);
-      const alignment = Number.isFinite(alignmentRaw) ? clamp(alignmentRaw, 0, 100) : 0;
-      document.getElementById('stat-alignment').textContent = alignment > 0 ? alignment + '%' : '—';
-
-      // Random quote
-      const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-      document.getElementById('quote-text').textContent = q.text;
-      document.getElementById('quote-author').textContent = q.author;
+      renderSummary(session);
+      renderRecent(session?.id);
     }
 
-    function formatDuration(totalSec) {
-      if (totalSec <= 0) return '—';
-      const m = Math.floor(totalSec / 60);
-      const s = totalSec % 60;
-      if (m === 0) return `${s}s`;
-      if (s === 0) return `${m}m`;
-      return `${m}m ${s}s`;
+    function buildFallbackSession(params, fallbackPose) {
+      const duration = parseInt(params.get('duration') || '0', 10);
+      const alignment = parseInt(params.get('alignment') || '0', 10);
+      return {
+        duration: Number.isFinite(duration) ? duration : 0,
+        alignment: Number.isFinite(alignment) ? alignment : 0,
+        activePose: fallbackPose,
+        bestPose: fallbackPose,
+        focusPose: fallbackPose,
+        focusArea: 'overall alignment',
+        focusAdvice: 'Hold each pose slowly and keep your breath even.',
+        poses: {
+          [fallbackPose]: {
+            name: FlowBuddyHistory.poseName(fallbackPose),
+            seconds: Number.isFinite(duration) ? duration : 0,
+            alignment: Number.isFinite(alignment) ? alignment : 0,
+            readings: alignment > 0 ? 1 : 0
+          }
+        }
+      };
     }
 
-    function clamp(n, min, max) {
-      return Math.min(max, Math.max(min, n));
+    function renderSummary(session) {
+      const duration = session?.duration || 0;
+      const alignment = session?.alignment || 0;
+      const bestPose = session?.bestPose || session?.activePose || 'mountain';
+      const focusPose = session?.focusPose || session?.activePose || 'mountain';
+
+      setText('stat-duration', FlowBuddyHistory.formatDuration(duration));
+      setText('stat-alignment', alignment ? `${alignment}%` : '-');
+      setText('stat-best-pose', FlowBuddyHistory.poseName(bestPose));
+      setText('insight-title', `${FlowBuddyHistory.poseName(focusPose)} is your next refinement.`);
+      setText('insight-copy', session?.focusAdvice || 'Keep practicing with slow, steady holds.');
+      setText('focus-chip', titleCase(session?.focusArea || 'overall alignment'));
+
+      const tryAgain = document.getElementById('btn-try-again');
+      if (tryAgain) tryAgain.href = `insession.html?pose=${focusPose}`;
+
+      renderBreakdown(session?.poses || {});
+    }
+
+    function renderBreakdown(poses) {
+      const list = document.getElementById('breakdown-list');
+      const entries = Object.entries(poses).filter(([, pose]) => pose.readings || pose.seconds);
+
+      if (!entries.length) {
+        list.innerHTML = '<p class="empty-copy">No pose readings were captured in this session.</p>';
+        return;
+      }
+
+      list.innerHTML = entries.map(([poseKey, pose]) => {
+        const score = pose.alignment || 0;
+        return `
+          <article class="breakdown-item">
+            <div>
+              <h3>${pose.name || FlowBuddyHistory.poseName(poseKey)}</h3>
+              <p>${FlowBuddyHistory.formatDuration(pose.seconds || 0)} practiced</p>
+            </div>
+            <div class="pose-score">
+              <span>${score ? `${score}%` : '-'}</span>
+              <div class="score-track"><div style="width: ${score}%"></div></div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderRecent(currentId) {
+      const sessions = FlowBuddyHistory.readSessions().slice(0, 3);
+      const history = document.getElementById('mini-history');
+      setText('recent-count', sessions.length ? `${sessions.length} saved locally` : 'No saved sessions yet.');
+
+      if (!sessions.length) {
+        history.innerHTML = '<p class="empty-copy">Your completed sessions will appear here after practice.</p>';
+        return;
+      }
+
+      history.innerHTML = sessions.map(session => `
+        <article class="mini-session ${session.id === currentId ? 'current' : ''}">
+          <span>${FlowBuddyHistory.formatDate(session.createdAt)}</span>
+          <strong>${session.alignment || 0}%</strong>
+          <em>${FlowBuddyHistory.formatDuration(session.duration)}</em>
+        </article>
+      `).join('');
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function titleCase(value) {
+      return String(value).replace(/\b\w/g, letter => letter.toUpperCase());
     }
 
     init();
   </script>
-
 </body>
 
 </html>

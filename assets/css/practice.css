@@ -219,6 +219,81 @@
 
     }
 
+    .progress-strip {
+      max-width: 1100px;
+      margin: 0 auto 1.5rem;
+      padding: 1.25rem 1.35rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.25rem;
+      align-items: center;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-kicker,
+    .progress-strip-stats span {
+      color: #777;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .progress-strip h2 {
+      margin-top: 0.3rem;
+      font-size: clamp(1.15rem, 2.4vw, 1.65rem);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .progress-strip p:not(.progress-kicker) {
+      margin-top: 0.45rem;
+      color: #666;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .progress-strip-stats {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .progress-strip-stats div {
+      min-width: 88px;
+      padding: 0.75rem 0.85rem;
+      border-radius: 8px;
+      background: #f7f6f1;
+    }
+
+    .progress-strip-stats strong {
+      display: block;
+      margin-top: 0.2rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.45rem;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .progress-strip-stats a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0 1rem;
+      background: #1a1a1a;
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -399,6 +474,21 @@
 
       .cards-section {
         padding: 1rem 1.25rem 3rem;
+      }
+
+      .progress-strip {
+        width: calc(100% - 2.5rem);
+        grid-template-columns: 1fr;
+        margin-bottom: 1rem;
+      }
+
+      .progress-strip-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .progress-strip-stats a {
+        grid-column: 1 / -1;
       }
 
       /* Single column on mobile */

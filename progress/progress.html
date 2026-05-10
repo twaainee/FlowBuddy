@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="View your FlowBuddy practice progress saved locally on this device." />
+  <link rel="icon" type="image/png" href="../assets/images/logo.png" />
+  <title>FlowBuddy - Progress</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/shared.css" />
+  <link rel="stylesheet" href="../assets/css/progress.css" />
+</head>
+
+<body>
+  <nav>
+    <a class="nav-logo" href="../index.html">
+      <img src="../assets/images/logo.png" alt="" class="nav-logo-img" />
+      FlowBuddy
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Sanctuary</a></li>
+      <li><a href="../about/about.html">About Us</a></li>
+      <li><a href="../practice/practice.html">Practice</a></li>
+      <li><a href="progress.html" class="active">Progress</a></li>
+      <li><a href="../privacy/privacy.html">Privacy</a></li>
+    </ul>
+    <a class="btn-nav" href="../practice/practice.html">Begin Flow</a>
+    <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="nav-drawer" id="nav-drawer">
+    <a href="../index.html">Sanctuary</a>
+    <a href="../about/about.html">About Us</a>
+    <a href="../practice/practice.html">Practice</a>
+    <a href="progress.html">Progress</a>
+    <a href="../privacy/privacy.html">Privacy Policy</a>
+    <a class="drawer-cta" href="../practice/practice.html">Begin Flow</a>
+  </div>
+
+  <main class="progress-page">
+    <section class="progress-hero">
+      <p class="eyebrow">Local progress</p>
+      <h1>Your Practice Pattern</h1>
+      <p>These sessions are saved only in this browser, so FlowBuddy can show your recent rhythm without accounts.</p>
+    </section>
+
+    <section class="metric-grid" aria-label="Practice totals">
+      <article class="metric-card">
+        <span>Sessions</span>
+        <strong id="metric-sessions">0</strong>
+      </article>
+      <article class="metric-card">
+        <span>Total Time</span>
+        <strong id="metric-time">-</strong>
+      </article>
+      <article class="metric-card">
+        <span>Avg Alignment</span>
+        <strong id="metric-average">-</strong>
+      </article>
+      <article class="metric-card">
+        <span>Best Score</span>
+        <strong id="metric-best">-</strong>
+      </article>
+    </section>
+
+    <section class="timeline-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">History</p>
+          <h2>Recent Sessions</h2>
+        </div>
+        <button type="button" class="btn-clear" id="btn-clear-history">Clear History</button>
+      </div>
+      <div class="timeline-list" id="timeline-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span class="footer-logo">FlowBuddy</span>
+    <span>Local progress stays on this device.</span>
+    <span class="footer-links"><a href="../privacy/privacy.html">Privacy Policy</a></span>
+  </footer>
+
+  <script src="../assets/js/nav.js"></script>
+  <script src="../assets/js/session-history.js"></script>
+  <script>
+    function initProgress() {
+      renderMetrics();
+      renderTimeline();
+
+      const clearButton = document.getElementById('btn-clear-history');
+      clearButton.addEventListener('click', () => {
+        FlowBuddyHistory.clearSessions();
+        renderMetrics();
+        renderTimeline();
+      });
+    }
+
+    function renderMetrics() {
+      const stats = FlowBuddyHistory.getStats();
+      setText('metric-sessions', String(stats.count));
+      setText('metric-time', FlowBuddyHistory.formatDuration(stats.totalDuration));
+      setText('metric-average', stats.averageAlignment ? `${stats.averageAlignment}%` : '-');
+      setText('metric-best', stats.bestAlignment ? `${stats.bestAlignment}%` : '-');
+    }
+
+    function renderTimeline() {
+      const list = document.getElementById('timeline-list');
+      const sessions = FlowBuddyHistory.readSessions();
+
+      if (!sessions.length) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <h3>No sessions saved yet</h3>
+            <p>Complete a pose from the Practice page and your recap will appear here.</p>
+            <a href="../practice/practice.html">Start Practice</a>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = sessions.map(session => `
+        <article class="timeline-item">
+          <div class="timeline-main">
+            <span>${FlowBuddyHistory.formatDate(session.createdAt)}</span>
+            <h3>${FlowBuddyHistory.poseName(session.bestPose || session.activePose)}</h3>
+            <p>Focus: ${titleCase(session.focusArea || 'overall alignment')}</p>
+          </div>
+          <div class="timeline-stats">
+            <strong>${session.alignment || 0}%</strong>
+            <span>${FlowBuddyHistory.formatDuration(session.duration)}</span>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function titleCase(value) {
+      return String(value).replace(/\b\w/g, letter => letter.toUpperCase());
+    }
+
+    initProgress();
+  </script>
+</body>
+
+</html>
