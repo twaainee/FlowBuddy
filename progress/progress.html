@@ -45,32 +45,32 @@
   </div>
 
   <main class="progress-page">
-    <section class="progress-hero">
+    <section class="progress-hero animate-on-scroll">
       <p class="eyebrow">Local progress</p>
       <h1>Your Practice Pattern</h1>
       <p>These sessions are saved only in this browser, so FlowBuddy can show your recent rhythm without accounts.</p>
     </section>
 
     <section class="metric-grid" aria-label="Practice totals">
-      <article class="metric-card">
+      <article class="metric-card animate-on-scroll animate-delay-1">
         <span>Sessions</span>
         <strong id="metric-sessions">0</strong>
       </article>
-      <article class="metric-card">
+      <article class="metric-card animate-on-scroll animate-delay-2">
         <span>Total Time</span>
         <strong id="metric-time">-</strong>
       </article>
-      <article class="metric-card">
+      <article class="metric-card animate-on-scroll animate-delay-3">
         <span>Avg Alignment</span>
         <strong id="metric-average">-</strong>
       </article>
-      <article class="metric-card">
+      <article class="metric-card animate-on-scroll animate-delay-1">
         <span>Best Score</span>
         <strong id="metric-best">-</strong>
       </article>
     </section>
 
-    <section class="timeline-panel">
+    <section class="timeline-panel animate-on-scroll animate-delay-2">
       <div class="panel-heading">
         <div>
           <p class="eyebrow">History</p>
@@ -127,7 +127,7 @@
       }
 
       list.innerHTML = sessions.map(session => `
-        <article class="timeline-item">
+        <article class="timeline-item animate-on-scroll">
           <div class="timeline-main">
             <span>${FlowBuddyHistory.formatDate(session.createdAt)}</span>
             <h3>${FlowBuddyHistory.poseName(session.bestPose || session.activePose)}</h3>
@@ -139,6 +139,10 @@
           </div>
         </article>
       `).join('');
+
+      requestAnimationFrame(() => {
+        list.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('animated'));
+      });
     }
 
     function setText(id, value) {
