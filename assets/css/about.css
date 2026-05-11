@@ -55,6 +55,13 @@ main {
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.copy-block:hover .section-pill {
+  background: var(--green);
+  color: #fff;
+  transform: scale(1.05);
 }
 
 h1, h2, h3 {
@@ -68,17 +75,46 @@ h1 {
   font-size: clamp(3rem, 5.5vw, 4.6rem);
   line-height: 1.18;
   margin-bottom: 1.6rem;
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 h1 em {
   font-style: italic;
   font-weight: 800;
+  position: relative;
+  display: inline-block;
+}
+
+h1 em::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: rgba(73, 111, 87, 0.15);
+  border-radius: 3px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.animate-on-scroll.animated h1 em::after {
+  transform: scaleX(1);
 }
 
 .copy-block p {
   color: var(--muted);
   font-size: 1.02rem;
   line-height: 1.7;
+  transition: color 0.3s ease;
+}
+
+.copy-block:hover p {
+  color: #5a6560;
 }
 
 .image-card {
@@ -86,6 +122,13 @@ h1 em {
   overflow: hidden;
   border-radius: 16px;
   background: #fff;
+  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.image-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
 }
 
 .image-card img {
@@ -93,6 +136,11 @@ h1 em {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.image-card:hover img {
+  transform: scale(1.05);
 }
 
 .hero-image {
@@ -100,6 +148,12 @@ h1 em {
   height: 392px;
   justify-self: center;
   box-shadow: 0 22px 60px rgba(42, 83, 58, 0.12);
+  animation: hero-image-float 8s ease-in-out infinite;
+}
+
+@keyframes hero-image-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
 }
 
 .methodology-heading {
@@ -139,6 +193,24 @@ h1 em {
 .feature-band.dark {
   background: var(--green-dark);
   color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-band.dark::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.05) 0%, transparent 50%);
+  animation: dark-band-shimmer 8s ease-in-out infinite;
+}
+
+@keyframes dark-band-shimmer {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(5%) translateY(-5%); }
 }
 
 .feature-copy {
@@ -154,6 +226,12 @@ h1 em {
   margin-bottom: 1.2rem;
   border-radius: 50%;
   background: var(--pill);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.icon-dot:hover {
+  transform: scale(1.15) rotate(10deg);
+  background: var(--green);
 }
 
 .icon-dot svg {
@@ -164,6 +242,11 @@ h1 em {
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: stroke 0.3s ease;
+}
+
+.icon-dot:hover svg {
+  stroke: #fff;
 }
 
 h3 {

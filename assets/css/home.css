@@ -34,9 +34,21 @@
     }
 
     @keyframes aurora {
-      0% { transform: rotate(0deg) scale(1); }
-      50% { transform: rotate(180deg) scale(1.2); }
-      100% { transform: rotate(360deg) scale(1); }
+      0% { transform: rotate(0deg) scale(1) translateX(0); }
+      25% { transform: rotate(90deg) scale(1.1) translateX(5%); }
+      50% { transform: rotate(180deg) scale(1.2) translateX(0); }
+      75% { transform: rotate(270deg) scale(1.1) translateX(-5%); }
+      100% { transform: rotate(360deg) scale(1) translateX(0); }
+    }
+
+    /* Hero content floating animation */
+    @keyframes hero-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .hero-content {
+      animation: hero-float 6s ease-in-out infinite;
     }
 
     .hero-content {
@@ -78,11 +90,51 @@
       cursor: pointer;
       text-decoration: none;
       backdrop-filter: blur(8px);
-      transition: background 0.2s, transform 0.15s;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .btn-hero:hover { background: rgba(12,30,22,0.85); transform: translateY(-1px); }
-    .btn-hero svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-hero:hover::before {
+      left: 100%;
+    }
+
+    .btn-hero:hover {
+      background: rgba(12,30,22,0.9);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255,255,255,0.35);
+    }
+
+    .btn-hero:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-hero svg {
+      width: 13px;
+      height: 13px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-hero:hover svg {
+      transform: translateX(3px);
+    }
 
     /* ════════════════════ FEATURES ════════════════════ */
     .features {
@@ -129,6 +181,13 @@
       min-height: 370px;
       border: 1px solid rgba(0,0,0,0.04);
       overflow: hidden;
+      transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  box-shadow 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
     }
 
     .feature-icon {
@@ -138,12 +197,23 @@
       display: flex; align-items: center; justify-content: center;
       margin-bottom: 1.1rem;
       flex-shrink: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .feature-card:hover .feature-icon {
+      background: #4a6b58;
+      transform: scale(1.1) rotate(5deg);
     }
 
     .feature-icon svg {
       width: 19px; height: 19px;
       stroke: #555; fill: none;
       stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+      transition: stroke 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon svg {
+      stroke: #fff;
     }
 
     .feature-card h3 {
@@ -166,6 +236,15 @@
       display: flex;
       align-items: flex-end;
       overflow: hidden;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .feature-visual img {
+      transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .feature-card:hover .feature-visual img {
+      transform: scale(1.05);
     }
 
     /* ════════════════════ VISION ════════════════════ */
@@ -202,6 +281,26 @@
       font-style: italic;
       color: #3d7a5a;
       font-weight: 800;
+      position: relative;
+      display: inline-block;
+    }
+
+    .vision-quote em::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(61, 122, 90, 0.2);
+      border-radius: 2px;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .animate-on-scroll.animated .vision-quote em::after {
+      transform: scaleX(1);
     }
 
     .pillars {
@@ -216,12 +315,30 @@
       font-weight: 700;
       color: #1a1a1a;
       margin-bottom: 0.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .pillar {
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .pillar:hover {
+      transform: translateY(-4px);
+    }
+
+    .pillar:hover h4 {
+      color: #4a6b58;
     }
 
     .pillar p {
       font-size: 0.76rem;
       color: #aaa;
       line-height: 1.68;
+      transition: color 0.3s ease;
+    }
+
+    .pillar:hover p {
+      color: #777;
     }
 
     /* ════════════════════ RESPONSIVE ════════════════════ */
@@ -234,4 +351,4 @@
 
       .vision { padding: 4.5rem 1.25rem 3.5rem; }
       .pillars { grid-template-columns: 1fr; gap: 1.75rem; }
-    }
+    }

@@ -86,13 +86,39 @@
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.15s;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       white-space: nowrap;
       flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-nav::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s ease, height 0.4s ease;
+    }
+
+    .btn-nav:hover::before {
+      width: 200%;
+      height: 200%;
     }
 
     .btn-nav:hover {
       background: #3a5646;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 107, 88, 0.3);
+    }
+
+    .btn-nav:active {
+      transform: translateY(0);
     }
 
     /* Hamburger — mobile only */
@@ -201,6 +227,10 @@
       line-height: 1.05;
       letter-spacing: -0.02em;
       margin-bottom: 1rem;
+      background: linear-gradient(135deg, #1a1a1a 0%, #4a6b58 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero p {
@@ -308,6 +338,14 @@
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
+      transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  box-shadow 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      will-change: transform, box-shadow;
+    }
+
+    .pose-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     }
 
     .pose-card-img {
@@ -317,6 +355,11 @@
       border-radius: 12px;
       margin-bottom: 1.25rem;
       background: #f0efe8;
+      transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .pose-card:hover .pose-card-img {
+      transform: scale(1.03);
     }
 
     .pose-card h2 {
@@ -326,6 +369,11 @@
       color: #1a1a1a;
       letter-spacing: -0.02em;
       margin-bottom: 0.8rem;
+      transition: color 0.3s ease;
+    }
+
+    .pose-card:hover h2 {
+      color: #4a6b58;
     }
 
     .pose-card p {
@@ -334,6 +382,11 @@
       line-height: 1.65;
       flex: 1;
       margin-bottom: 1.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .pose-card:hover p {
+      color: #555;
     }
 
     .card-tags {
@@ -352,6 +405,12 @@
       border-radius: 99px;
       padding: 4px 12px;
       white-space: nowrap;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .pose-card:hover .tag {
+      background: #e8f0eb;
+      color: #3a5646;
     }
 
     .btn-start-flow {
@@ -369,11 +428,34 @@
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.15s;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-start-flow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-start-flow:hover::before {
+      left: 100%;
     }
 
     .btn-start-flow:hover {
       background: #3a5646;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(74, 107, 88, 0.3);
+    }
+
+    .btn-start-flow:active {
+      transform: translateY(0);
     }
 
     /* ── Coming Soon ── */
@@ -387,6 +469,19 @@
       display: block;
       margin: 0 auto 1.5rem;
       opacity: 0.45;
+      transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      animation: lotus-breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes lotus-breathe {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.45; }
+      50% { transform: scale(1.05) rotate(2deg); opacity: 0.6; }
+    }
+
+    .coming-soon:hover .lotus-icon {
+      animation-play-state: paused;
+      transform: scale(1.1) rotate(5deg);
+      opacity: 0.8;
     }
 
     .coming-soon h2 {

@@ -240,15 +240,168 @@ footer .footer-links a:hover {
 /* ── Animations ── */
 .animate-on-scroll {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform: translateY(30px) scale(0.98);
+  filter: blur(2px);
+  transition: opacity 0.9s cubic-bezier(0.25, 0.8, 0.25, 1),
+              transform 0.9s cubic-bezier(0.25, 0.8, 0.25, 1),
+              filter 0.9s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform, opacity, filter;
 }
 
 .animate-on-scroll.animated {
   opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* Directional variants */
+.animate-on-scroll.from-left {
+  transform: translateX(-40px) scale(0.98);
+}
+
+.animate-on-scroll.from-left.animated {
+  transform: translateX(0) scale(1);
+}
+
+.animate-on-scroll.from-right {
+  transform: translateX(40px) scale(0.98);
+}
+
+.animate-on-scroll.from-right.animated {
+  transform: translateX(0) scale(1);
+}
+
+.animate-on-scroll.scale-in {
+  transform: scale(0.9);
+}
+
+.animate-on-scroll.scale-in.animated {
+  transform: scale(1);
+}
+
+/* Stagger delays */
+.animate-delay-1 { transition-delay: 0.08s; }
+.animate-delay-2 { transition-delay: 0.16s; }
+.animate-delay-3 { transition-delay: 0.24s; }
+.animate-delay-4 { transition-delay: 0.32s; }
+.animate-delay-5 { transition-delay: 0.4s; }
+.animate-delay-6 { transition-delay: 0.48s; }
+.animate-delay-7 { transition-delay: 0.56s; }
+
+/* Hover lift effect for cards */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform, box-shadow;
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Link underline animation */
+.nav-links a {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #4a6b58;
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+
+.nav-links a.active {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Button glow pulse */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 107, 88, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(74, 107, 88, 0); }
+}
+
+.btn-nav {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-nav::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.btn-nav:hover::before {
+  width: 200%;
+  height: 200%;
+}
+
+.btn-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 107, 88, 0.3);
+}
+
+.btn-nav:active {
   transform: translateY(0);
 }
 
-.animate-delay-1 { transition-delay: 0.1s; }
-.animate-delay-2 { transition-delay: 0.2s; }
-.animate-delay-3 { transition-delay: 0.3s; }
+/* Logo subtle pulse */
+@keyframes logo-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.nav-logo-img {
+  animation: logo-pulse 4s ease-in-out infinite;
+}
+
+/* Nav drawer slide animation enhancement */
+.nav-drawer a {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.15s;
+}
+
+.nav-drawer.open a {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.nav-drawer.open a:nth-child(1) { transition-delay: 0.05s; }
+.nav-drawer.open a:nth-child(2) { transition-delay: 0.1s; }
+.nav-drawer.open a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.open a:nth-child(4) { transition-delay: 0.2s; }
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(1deg); }
+  50% { transform: translateY(-4px) rotate(-1deg); }
+  75% { transform: translateY(-12px) rotate(0.5deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
