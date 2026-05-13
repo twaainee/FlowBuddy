@@ -563,6 +563,13 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
+function setCameraRetryAction(label, handlerName) {
+  const retryButton = document.querySelector('.btn-camera-retry');
+  if (!retryButton) return;
+  retryButton.textContent = label;
+  retryButton.setAttribute('onclick', `${handlerName}()`);
+}
+
 function showCameraError(options = {}) {
   const errEl = document.getElementById('cam-error');
   const loading = document.getElementById('loading-overlay');
@@ -585,9 +592,25 @@ function showCameraError(options = {}) {
   setText('cam-error-step-2', steps[1] || '');
   setText('cam-error-step-3', steps[2] || '');
   setText('cam-error-note', options.note || 'Your camera stays off until permission is granted.');
+  setCameraRetryAction(options.retryLabel || 'Try Again', options.retryAction || 'retryCameraAccess');
 
   errEl.style.display = 'flex';
   setCameraState(options.state || 'error');
+}
+
+function getCameraReloadContent() {
+  return {
+    title: 'Camera permission is blocked',
+    message: 'Your browser has blocked camera access for this page. FlowBuddy cannot ask again until you update the browser permission and reload.',
+    steps: [
+      'Tap the lock or camera icon in your browser bar.',
+      'Change Camera to Allow for FlowBuddy.',
+      'Reload this page, then start the practice again.'
+    ],
+    note: 'Your camera stays off until you allow access and reload.',
+    retryLabel: 'Reload Page',
+    retryAction: 'reloadPage'
+  };
 }
 
 function getCameraErrorContent(error) {
@@ -646,16 +669,7 @@ function getCameraErrorContent(error) {
   }
 
   if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
-    return {
-      title: 'Camera permission is denied',
-      message: 'The browser blocked camera access for this page. FlowBuddy cannot see or analyze anything until you allow it.',
-      steps: [
-        'Tap the lock or camera icon in your browser bar.',
-        'Change Camera to Allow for FlowBuddy.',
-        'Press Try Again, or reload if the browser asks you to.'
-      ],
-      note: 'The live session stays local and no video is recorded.'
-    };
+    return getCameraReloadContent();
   }
 
   return {
@@ -1070,8 +1084,25 @@ function completeSession(delayMs = 0) {
   }, delayMs);
 }
 
-function retryCameraAccess() {
+async function retryCameraAccess() {
+  if (navigator.permissions?.query) {
+    try {
+      const permission = await navigator.permissions.query({ name: 'camera' });
+      if (permission.state === 'denied') {
+        stopCameraStream();
+        showCameraError(getCameraReloadContent());
+        return;
+      }
+    } catch (err) {
+      console.warn('Camera permission status could not be checked:', err);
+    }
+  }
+
   startPose(activePose);
+}
+
+function reloadPage() {
+  window.location.reload();
 }
 
 function endSession() {
