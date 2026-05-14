@@ -53,22 +53,38 @@ const POSE_SEGMENTS = {
 // rotation-invariant and works from any camera angle.
 const T = {
   mountain: {
-    spineMin:  150,   // shoulder–hip–ankle ≥ 150° = good (front-facing camera foreshortens this)
-    spineWarn: 130,
-    armGood:   0.12,  // wrist-to-hip horizontal distance (normalised) — generous
-    armWarn:   0.22,
+    spineMin:  156,
+    spineWarn: 140,
+    kneeStraightMin: 160,
+    kneeStraightWarn: 144,
+    hipFootGapGood:  0.098,
+    hipFootGapWarn:  0.072,
+    armGood:   0.078,
+    armWarn:   0.155,
+    // Upright head: nose clearly above shoulder line (norm coords); slouch/chin down shrinks this gap
+    headClearMin: 0.074,
+    headClearWarn: 0.05,
+    // Angle at shoulder between hip→shoulder and nose→shoulder; forward head / chin down narrows it
+    neckOpenMin: 136,
+    neckOpenWarn: 118,
   },
   downdog: {
-    hipMin:    85,    // wrist–hip–ankle ≥ 85° (front-facing: hips look less open than side-on)
-    hipWarn:   60,
-    armMin:    145,   // shoulder–elbow–wrist ≥ 145° = acceptably straight
-    armWarn:   120,
+    armMin:    158,
+    armWarn:   132,
+    legMin:    158,
+    legWarn:   128,
+    hipLiftGood: 0.095,
+    hipLiftNeed: 0.038,
   },
   warrior: {
-    kneeMin:   60,    // front knee hip–knee–ankle — front-facing camera makes this look smaller
-    kneeMax:   120,   // wide range — reward the attempt
-    armsMin:   120,   // elbow–shoulder–hip — arms raised, front-facing foreshortens
-    armsWarn:  90,
+    kneeMin:   68,
+    kneeMax:   112,
+    armsLiftGood: 0.175,
+    armsLiftNeed: 0.04,
+    torsoXGood: 0.12,
+    torsoXNeed: 0.2,
+    backLegMin: 158,
+    backLegWarn: 130,
   },
 };
  
@@ -88,6 +104,12 @@ function ang(A, B, C) {
  
 function aStatus(v, good, warn) {
   return v >= good ? 'good' : v >= warn ? 'needwork' : 'wrong';
+}
+
+const STATUS_RANK = { wrong: 0, needwork: 1, good: 2 };
+
+function worseStatus(a, b) {
+  return (STATUS_RANK[a] ?? 1) <= (STATUS_RANK[b] ?? 1) ? a : b;
 }
 
 /** MediaPipe visibility in [0,1]; missing field treated conservatively when coords exist. */
@@ -163,35 +185,86 @@ function angFromLm(lm, ia, ib, ic, minVis = 0.34) {
 }
  
 // ─── MOUNTAIN POSE ───────────────────────────────────
-// Front-facing camera: person stands upright, arms at sides.
-// We check: (1) spine roughly vertical via shoulder-hip-ankle,
-//           (2) wrists are close to hips horizontally.
+// Front-facing camera: tall Tadasana — stack head over shoulders, straight knees, arms at sides.
+// We check: leg lines, hip–foot stack, shoulder–hip x-alignment, head above shoulders, neck “open” at shoulder.
 function checkMountain(lm) {
   const t = T.mountain;
- 
-  // Spine: average both sides, use hip as midpoint landmark
+
   const spineL = angFromLm(lm, 11, 23, 27);
   const spineR = angFromLm(lm, 12, 24, 28);
-  const ssL    = aStatus(spineL, t.spineMin, t.spineWarn);
-  const ssR    = aStatus(spineR, t.spineMin, t.spineWarn);
-  
-  const torsoLean = Math.abs(((lm[11].x + lm[12].x)/2) - ((lm[23].x + lm[24].x)/2));
-  const ts = torsoLean < 0.05 ? 'good' : torsoLean < 0.1 ? 'needwork' : 'wrong';
- 
-  // Arms: wrist x-position should be near hip x-position
-  // Use absolute pixel-space normalised distance
-  const dL  = Math.abs(lm[15].x - lm[23].x);
-  const dR  = Math.abs(lm[16].x - lm[24].x);
+  const spineStL = aStatus(spineL, t.spineMin, t.spineWarn);
+  const spineStR = aStatus(spineR, t.spineMin, t.spineWarn);
+
+  const kneeL = angFromLm(lm, 23, 25, 27);
+  const kneeR = angFromLm(lm, 24, 26, 28);
+  const kneeStL = aStatus(kneeL, t.kneeStraightMin, t.kneeStraightWarn);
+  const kneeStR = aStatus(kneeR, t.kneeStraightMin, t.kneeStraightWarn);
+
+  const legL = worseStatus(kneeStL, spineStL);
+  const legR = worseStatus(kneeStR, spineStR);
+
+  const ankleMidY = (lm[27].y + lm[28].y) / 2;
+  const hipMidY = (lm[23].y + lm[24].y) / 2;
+  const hipFootGap = ankleMidY - hipMidY;
+  let stackY = 'good';
+  if (hipFootGap < t.hipFootGapWarn) stackY = 'wrong';
+  else if (hipFootGap < t.hipFootGapGood) stackY = 'needwork';
+
+  const torsoLean = Math.abs(((lm[11].x + lm[12].x) / 2) - ((lm[23].x + lm[24].x) / 2));
+  let stackX = 'good';
+  if (torsoLean >= 0.078) stackX = 'wrong';
+  else if (torsoLean >= 0.048) stackX = 'needwork';
+
+  const shoulderMidY = (lm[11].y + lm[12].y) / 2;
+  const headClear = shoulderMidY - lm[0].y;
+  let headGapSt = 'good';
+  if (lmVis(lm, 0) < 0.28 || lmVis(lm, 11) < 0.24 || lmVis(lm, 12) < 0.24) {
+    headGapSt = 'needwork';
+  } else {
+    headGapSt = aStatus(headClear, t.headClearMin, t.headClearWarn);
+  }
+
+  const neckL = angFromLm(lm, 23, 11, 0, 0.26);
+  const neckR = angFromLm(lm, 24, 12, 0, 0.26);
+  const neckStL = Number.isFinite(neckL) ? aStatus(neckL, t.neckOpenMin, t.neckOpenWarn) : 'needwork';
+  const neckStR = Number.isFinite(neckR) ? aStatus(neckR, t.neckOpenMin, t.neckOpenWarn) : 'needwork';
+  const headNeck = worseStatus(neckStL, neckStR);
+  const headPosture = worseStatus(headGapSt, headNeck);
+
+  const ts = worseStatus(
+    worseStatus(worseStatus(stackX, stackY), worseStatus(legL, legR)),
+    headPosture
+  );
+
+  let torsoMsg = 'Lengthen tall through the crown of your head — hips over ankles, knees soft but straight.';
+  if (stackY !== 'good') {
+    torsoMsg = 'Stand up out of the squat — lift your hips so thighs lengthen and knees straighten like the reference.';
+  } else if (stackX !== 'good') {
+    torsoMsg = 'Center your ribs over your hips; keep shoulders stacked above the pelvis.';
+  } else if (headPosture !== 'good') {
+    torsoMsg = 'Lift the crown of your head — ears over shoulders, chin level. Avoid dropping the gaze or jutting the chin toward the chest.';
+  } else if (legL !== 'good' || legR !== 'good') {
+    torsoMsg = 'Straighten both legs fully — Mountain is a standing pose, not a partial bend.';
+  }
+
+  const dL = Math.abs(lm[15].x - lm[23].x);
+  const dR = Math.abs(lm[16].x - lm[24].x);
   const asL = dL < t.armGood ? 'good' : dL < t.armWarn ? 'needwork' : 'wrong';
   const asR = dR < t.armGood ? 'good' : dR < t.armWarn ? 'needwork' : 'wrong';
- 
-  // Priority order for toast: Torso, Arms, Legs
+
+  const msgLegL = kneeStL !== 'good'
+    ? 'Straighten your left knee — think long line from hip to ankle.'
+    : 'Stack shoulder, hip, and ankle in one vertical line on the left.';
+  const msgLegR = kneeStR !== 'good'
+    ? 'Straighten your right knee — think long line from hip to ankle.'
+    : 'Stack shoulder, hip, and ankle in one vertical line on the right.';
+
   return [
-    { id: 'torso', status: ts, title: 'Stand Tall', msg: ts === 'wrong' ? 'Your body is leaning. Stand upright and stack your spine.' : 'Lengthen upward and keep your gaze forward.' },
-    { id: 'armL', status: asL, title: 'Relax Left Arm', msg: 'Let your left arm hang naturally close to your body.' },
-    { id: 'armR', status: asR, title: 'Relax Right Arm', msg: 'Let your right arm hang naturally close to your body.' },
-    { id: 'legL', status: ssL, title: 'Straighten Left Leg', msg: 'Engage your left leg and stand straight.' },
-    { id: 'legR', status: ssR, title: 'Straighten Right Leg', msg: 'Engage your right leg and stand straight.' },
+    { id: 'torso', status: ts, title: 'Stand Tall', msg: torsoMsg },
+    { id: 'armL', status: asL, title: 'Relax Left Arm', msg: 'Let your left arm hang naturally close to your body, palms facing in.' },
+    { id: 'armR', status: asR, title: 'Relax Right Arm', msg: 'Let your right arm hang naturally close to your body, palms facing in.' },
+    { id: 'legL', status: legL, title: 'Left Leg', msg: msgLegL },
+    { id: 'legR', status: legR, title: 'Right Leg', msg: msgLegR },
   ];
 }
  
@@ -211,12 +284,10 @@ function checkDowndog(lm) {
   const hipY  = (lm[23].y + lm[24].y) / 2;
   const shY   = (lm[11].y + lm[12].y) / 2;
   
-  // Hip should be between shoulders and wrists vertically — forms the V peak
-  // Good: hips clearly above shoulders (hipY < shY by at least 0.05)
-  const hipLift = shY - hipY; // positive = hips higher than shoulders
+  const hipLift = shY - hipY;
   let hs;
-  if (hipLift >= 0.08)       hs = 'good';
-  else if (hipLift >= 0.02)  hs = 'needwork';
+  if (hipLift >= t.hipLiftGood)       hs = 'good';
+  else if (hipLift >= t.hipLiftNeed)  hs = 'needwork';
   else                        hs = 'wrong';
  
   // Check 2 — arms straight (shoulder–elbow–wrist angle)
@@ -227,8 +298,8 @@ function checkDowndog(lm) {
 
   const legL = angFromLm(lm, 23, 25, 27);
   const legR = angFromLm(lm, 24, 26, 28);
-  const lsL  = aStatus(legL, 145, 120);
-  const lsR  = aStatus(legR, 145, 120);
+  const lsL  = aStatus(legL, t.legMin, t.legWarn);
+  const lsR  = aStatus(legR, t.legMin, t.legWarn);
  
   // Priority: Hips, Arms, Legs
   return [
@@ -274,9 +345,9 @@ function checkWarrior(lm) {
   }
  
   const bk = isLeftFront ? kR : kL;
-  const bks = Number.isFinite(bk) ? aStatus(bk, 145, 120) : 'wrong';
-  const bkm = bks === 'good' ? 'Strong back leg.' : 'Straighten your back leg completely.';
-
+  const bks = Number.isFinite(bk) ? aStatus(bk, t.backLegMin, t.backLegWarn) : 'wrong';
+  const bkm = bks === 'good' ? 'Strong back leg.' : 'Straighten your back leg completely — aim for the reference line from hip to heel.';
+ 
   const ksL = isLeftFront ? fks : bks;
   const ksR = isLeftFront ? bks : fks;
   const msgL = isLeftFront ? fkm : bkm;
@@ -287,17 +358,17 @@ function checkWarrior(lm) {
   const wristYR = lm[16].y;
   const shYL = lm[11].y;
   const shYR = lm[12].y;
-  const armsLiftL = shYL - wristYL; // positive = wrists above shoulders
+  const armsLiftL = shYL - wristYL;
   const armsLiftR = shYR - wristYR;
  
-  let asL = armsLiftL >= 0.15 ? 'good' : armsLiftL >= 0.0 ? 'needwork' : 'wrong';
-  let asR = armsLiftR >= 0.15 ? 'good' : armsLiftR >= 0.0 ? 'needwork' : 'wrong';
+  let asL = armsLiftL >= t.armsLiftGood ? 'good' : armsLiftL >= t.armsLiftNeed ? 'needwork' : 'wrong';
+  let asR = armsLiftR >= t.armsLiftGood ? 'good' : armsLiftR >= t.armsLiftNeed ? 'needwork' : 'wrong';
 
-  const amL = asL === 'good' ? 'Good arm lift.' : 'Lift your left arm straight up toward the ceiling.';
-  const amR = asR === 'good' ? 'Good arm lift.' : 'Lift your right arm straight up toward the ceiling.';
+  const amL = asL === 'good' ? 'Good arm lift.' : 'Lift your left arm straight up toward the ceiling, biceps by the ears like the reference.';
+  const amR = asR === 'good' ? 'Good arm lift.' : 'Lift your right arm straight up toward the ceiling, biceps by the ears like the reference.';
  
   const torsoLean = Math.abs(((lm[11].x + lm[12].x)/2) - ((lm[23].x + lm[24].x)/2));
-  const ts = torsoLean < 0.15 ? 'good' : torsoLean < 0.25 ? 'needwork' : 'wrong';
+  const ts = torsoLean < t.torsoXGood ? 'good' : torsoLean < t.torsoXNeed ? 'needwork' : 'wrong';
   const tm = ts === 'wrong' ? 'Keep your chest lifted and shoulders stacked over hips.' : 'Good posture.';
 
   // Priority: Front Knee, Torso, Arms, Back Knee
@@ -483,7 +554,13 @@ let lastFbTs = 0;
 let finalScore = 0;
 let personInFrame = false;
 let timerRunning  = false;
-let totalElapsedSec = 0;        // FIX #6: accumulates time across pose switches
+let totalElapsedSec = 0;        // FIX #6: accumulates while pose-lock countdown is running only
+/** Wall-clock ms when camera first became active this visit — used so progress still records time if timer never unlocks. */
+let practiceSessionStartTs = 0;
+/** True after a debounced frame had clear full-body framing (not framingIssue). */
+let fullBodySeenEver = false;
+/** Last debounced framingIssue flag — reflects whether the latest guidance thought the body was cropped. */
+let lastFramingIssue = false;
 let activePose = 'mountain';
 let poseStats = {};
 let mpCamera = null;
@@ -588,16 +665,34 @@ function buildSessionSummary() {
     });
   });
 
+  const maxDur = 6 * 60 * 60;
+  const wallSecs = practiceSessionStartTs > 0
+    ? Math.min(maxDur, Math.floor((Date.now() - practiceSessionStartTs) / 1000))
+    : 0;
+  const duration = Math.min(maxDur, Math.max(totalElapsedSec, wallSecs));
+  const extraWallOnly = Math.max(0, duration - totalElapsedSec);
+  if (extraWallOnly > 0 && poses[activePose]) {
+    poses[activePose].seconds += extraWallOnly;
+  }
+
   const alignment = smoothScore !== null ? Math.round(smoothScore) : 0;
+
+  let framingStatus = 'ok';
+  if (practiceSessionStartTs > 0) {
+    if (!fullBodySeenEver) framingStatus = 'never_full';
+    else if (lastFramingIssue) framingStatus = 'ended_partial';
+  }
+
   return {
-    duration: totalElapsedSec,
+    duration,
     alignment,
     activePose,
     bestPose,
     focusPose,
     focusArea,
     focusAdvice,
-    poses
+    poses,
+    framingStatus
   };
 }
 
@@ -856,6 +951,8 @@ function updateUI(checks, presence) {
   if (bpBar) bpBar.style.width = pct + '%';
  
   const framingIssue = !!(presence && presence.framingIssue);
+  lastFramingIssue = framingIssue;
+  if (presence && !presence.framingIssue) fullBodySeenEver = true;
   const presenceOk = !framingIssue && presenceFactor >= 0.42;
   // FIX #4: pose-lock — score OK and framing is not clearly blocking the model
   if (pct >= POSE_LOCK_THRESHOLD && presenceOk) {
@@ -996,6 +1093,9 @@ function declineTerms() {
 async function initFromURL() {
   const params  = new URLSearchParams(window.location.search);
   const poseKey = params.get('pose') || 'mountain';
+  practiceSessionStartTs = 0;
+  fullBodySeenEver = false;
+  lastFramingIssue = false;
   resetPracticeStats();
   const navEntry = performance.getEntriesByType('navigation')[0];
   if (navEntry?.type === 'reload') {
@@ -1072,6 +1172,9 @@ async function startPose(poseKey) {
     mpCamera.start();
     document.getElementById('loading-overlay').style.display = 'none';
     setCameraState('active');
+    if (practiceSessionStartTs === 0) {
+      practiceSessionStartTs = Date.now();
+    }
   } catch(e) {
     stopCameraStream();
     hideCameraOffState();

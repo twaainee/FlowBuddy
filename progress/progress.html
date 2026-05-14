@@ -126,19 +126,25 @@
         return;
       }
 
-      list.innerHTML = sessions.map(session => `
+      list.innerHTML = sessions.map(session => {
+        const fr = FlowBuddyHistory.getFramingSummary(session);
+        const framingRow = fr
+          ? `<p class="timeline-framing"><span class="timeline-framing-chip">${fr.short}</span> ${fr.title}</p>`
+          : '';
+        return `
         <article class="timeline-item animate-on-scroll">
           <div class="timeline-main">
             <span>${FlowBuddyHistory.formatDate(session.createdAt)}</span>
             <h3>${FlowBuddyHistory.poseName(session.bestPose || session.activePose)}</h3>
             <p>Focus: ${titleCase(session.focusArea || 'overall alignment')}</p>
+            ${framingRow}
           </div>
           <div class="timeline-stats">
             <strong>${session.alignment || 0}%</strong>
             <span>${FlowBuddyHistory.formatDuration(session.duration)}</span>
           </div>
-        </article>
-      `).join('');
+        </article>`;
+      }).join('');
 
       requestAnimationFrame(() => {
         list.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('animated'));

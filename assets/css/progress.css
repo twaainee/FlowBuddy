@@ -141,6 +141,27 @@ body {
   line-height: 1.5;
 }
 
+.timeline-framing {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #78350f;
+}
+
+.timeline-framing-chip {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  background: rgba(180, 83, 9, 0.14);
+  color: #92400e;
+}
+
 .timeline-stats {
   min-width: 130px;
   display: grid;

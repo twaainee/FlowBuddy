@@ -114,6 +114,44 @@ a {
   margin-bottom: 16px;
 }
 
+.framing-callout {
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(180, 83, 9, 0.35);
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  box-shadow: 0 10px 28px rgba(146, 64, 14, 0.08);
+}
+
+.framing-callout.hidden {
+  display: none;
+}
+
+.framing-callout-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b45309;
+  margin-bottom: 8px;
+}
+
+.framing-callout-title {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  color: #78350f;
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+
+.framing-callout-detail {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #92400e;
+}
+
 .stat-card,
 .insight-panel,
 .pose-breakdown,
@@ -326,6 +364,19 @@ a {
 
 .mini-session em {
   font-style: normal;
+}
+
+.mini-framing-chip {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(180, 83, 9, 0.15);
+  color: #92400e;
 }
 
 .empty-copy {

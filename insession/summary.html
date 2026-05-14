@@ -42,6 +42,12 @@
       </div>
     </section>
 
+    <section class="framing-callout hidden" id="framing-callout" aria-labelledby="framing-callout-title">
+      <p class="framing-callout-label">Camera framing</p>
+      <h2 class="framing-callout-title" id="framing-callout-title"></h2>
+      <p class="framing-callout-detail" id="framing-callout-detail"></p>
+    </section>
+
     <section class="insight-panel animate-on-scroll animate-delay-1" aria-labelledby="insight-title">
       <div>
         <p class="panel-label">Next focus</p>
@@ -130,6 +136,20 @@
       if (tryAgain) tryAgain.href = `insession.html?pose=${focusPose}`;
 
       renderBreakdown(session?.poses || {});
+      renderFramingNotice(session);
+    }
+
+    function renderFramingNotice(session) {
+      const wrap = document.getElementById('framing-callout');
+      if (!wrap) return;
+      const info = FlowBuddyHistory.getFramingSummary(session);
+      if (!info) {
+        wrap.classList.add('hidden');
+        return;
+      }
+      wrap.classList.remove('hidden');
+      setText('framing-callout-title', info.title);
+      setText('framing-callout-detail', info.detail);
     }
 
     function renderBreakdown(poses) {
@@ -172,13 +192,17 @@
         return;
       }
 
-      history.innerHTML = sessions.map(session => `
+      history.innerHTML = sessions.map(session => {
+        const fr = FlowBuddyHistory.getFramingSummary(session);
+        const chip = fr ? `<span class="mini-framing-chip">${fr.short}</span>` : '';
+        return `
         <article class="mini-session animate-on-scroll ${session.id === currentId ? 'current' : ''}">
           <span>${FlowBuddyHistory.formatDate(session.createdAt)}</span>
           <strong>${session.alignment || 0}%</strong>
           <em>${FlowBuddyHistory.formatDuration(session.duration)}</em>
-        </article>
-      `).join('');
+          ${chip}
+        </article>`;
+      }).join('');
 
       requestAnimationFrame(() => {
         history.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('animated'));

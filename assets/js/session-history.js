@@ -26,6 +26,10 @@
   }
 
   function saveSession(input) {
+    const fs = input.framingStatus;
+    const framingStatus =
+      fs === 'never_full' || fs === 'ended_partial' ? fs : 'ok';
+
     const session = {
       id: input.id || `fb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       createdAt: input.createdAt || new Date().toISOString(),
@@ -36,7 +40,8 @@
       focusPose: input.focusPose || input.activePose || 'mountain',
       focusArea: input.focusArea || 'overall alignment',
       focusAdvice: input.focusAdvice || 'Keep practicing with slow, steady holds.',
-      poses: input.poses || {}
+      poses: input.poses || {},
+      framingStatus
     };
 
     const sessions = readSessions().filter(item => item.id !== session.id);
@@ -60,6 +65,29 @@
 
   function poseName(poseKey) {
     return POSE_NAMES[poseKey] || poseKey || 'Practice';
+  }
+
+  /** Non-null when saved session should show framing guidance (summary + progress). */
+  function getFramingSummary(session) {
+    const st = session?.framingStatus;
+    if (!st || st === 'ok') return null;
+    if (st === 'never_full') {
+      return {
+        short: 'No full body',
+        title: 'Full body was not clearly in frame',
+        detail:
+          'FlowBuddy did not see head-to-feet framing long enough to judge this session fairly. Next time, step back so hips, knees, and feet stay in view.'
+      };
+    }
+    if (st === 'ended_partial') {
+      return {
+        short: 'Ended cropped',
+        title: 'Session ended with a partial frame',
+        detail:
+          'The last part of practice still looked cropped or hard to see. Finishing with your whole body in frame gives clearer alignment feedback.'
+      };
+    }
+    return null;
   }
 
   function formatDuration(totalSec) {
@@ -110,6 +138,7 @@
     getStats,
     poseName,
     formatDuration,
-    formatDate
+    formatDate,
+    getFramingSummary
   };
 })();
