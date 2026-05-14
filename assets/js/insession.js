@@ -89,6 +89,78 @@ function ang(A, B, C) {
 function aStatus(v, good, warn) {
   return v >= good ? 'good' : v >= warn ? 'needwork' : 'wrong';
 }
+
+/** MediaPipe visibility in [0,1]; missing field treated conservatively when coords exist. */
+function lmVis(lm, i) {
+  const p = lm[i];
+  if (!p) return 0;
+  if (p.visibility == null) return 0.72;
+  return p.visibility;
+}
+
+/** Normalised vertical extent (head/shoulders → feet). ~0.35+ typical for full body in frame. */
+function bodyVerticalSpanNorm(lm) {
+  let top = 1;
+  const headIdx = [0, 2, 5];
+  for (const i of headIdx) {
+    if (lmVis(lm, i) >= 0.22 && lm[i]) top = Math.min(top, lm[i].y);
+  }
+  if (lmVis(lm, 11) >= 0.22 && lmVis(lm, 12) >= 0.22 && lm[11] && lm[12]) {
+    top = Math.min(top, (lm[11].y + lm[12].y) / 2);
+  }
+  let bot = top;
+  for (const i of [27, 28, 29, 30, 31, 32]) {
+    if (lm[i] && lmVis(lm, i) >= 0.18) bot = Math.max(bot, lm[i].y);
+  }
+  return Math.max(0, bot - top);
+}
+
+/**
+ * 0 = unreliable (cropped / half body / ghosted legs), 1 = enough body visible to score fairly.
+ * `framingIssue` is strict — only true when framing clearly blocks measurement (toast), not wrong form.
+ */
+function evaluateLandmarkPresence(lm, poseKey) {
+  const v = i => lmVis(lm, i);
+  const shoulderPair = Math.min(v(11), v(12));
+  const hipPair = Math.min(v(23), v(24));
+  const kneePair = Math.min(v(25), v(26));
+  const anklePair = Math.min(v(27), v(28));
+
+  const span = bodyVerticalSpanNorm(lm);
+  const spanFactor = Math.max(0, Math.min(1, (span - 0.12) / 0.3));
+
+  const limbCore = (shoulderPair + hipPair + kneePair + anklePair) / 4;
+  const visFactor = Math.max(0, Math.min(1, (limbCore - 0.18) / 0.62));
+
+  // Do not penalise left/right ankle visibility mismatch — normal in warrior, downdog, or camera angle.
+  let factor = 0.4 * spanFactor + 0.5 * visFactor + 0.1;
+  factor = Math.max(0, Math.min(1, factor));
+
+  // Mild caps only for severe occlusion (wrong arm angles can lower wrist/elbow vis without meaning "step back")
+  if (poseKey === 'downdog') {
+    const wristMin = Math.min(v(15), v(16));
+    factor *= Math.max(0.82, Math.min(1, wristMin / 0.38));
+  }
+  if (poseKey === 'warrior') {
+    const elbowMin = Math.min(v(13), v(14));
+    factor *= Math.max(0.82, Math.min(1, elbowMin / 0.38));
+  }
+
+  factor = Math.max(0, Math.min(1, factor));
+
+  // Toast + "step back" only when crop / missing legs is obvious — not when user is fully in frame with bad form
+  const legsMissing = anklePair < 0.22 && kneePair < 0.32;
+  const tinyFigure = span < 0.15 && limbCore < 0.45;
+  const croppedVertical = span < 0.18 && hipPair >= 0.35;
+  const framingIssue = croppedVertical || tinyFigure || legsMissing || (span < 0.14 && anklePair < 0.38);
+
+  return { factor, span, anklePair, hipPair, kneePair, framingIssue };
+}
+
+function angFromLm(lm, ia, ib, ic, minVis = 0.34) {
+  if (lmVis(lm, ia) < minVis || lmVis(lm, ib) < minVis || lmVis(lm, ic) < minVis) return NaN;
+  return ang(lm[ia], lm[ib], lm[ic]);
+}
  
 // ─── MOUNTAIN POSE ───────────────────────────────────
 // Front-facing camera: person stands upright, arms at sides.
@@ -98,8 +170,8 @@ function checkMountain(lm) {
   const t = T.mountain;
  
   // Spine: average both sides, use hip as midpoint landmark
-  const spineL = ang(lm[11], lm[23], lm[27]);
-  const spineR = ang(lm[12], lm[24], lm[28]);
+  const spineL = angFromLm(lm, 11, 23, 27);
+  const spineR = angFromLm(lm, 12, 24, 28);
   const ssL    = aStatus(spineL, t.spineMin, t.spineWarn);
   const ssR    = aStatus(spineR, t.spineMin, t.spineWarn);
   
@@ -148,13 +220,13 @@ function checkDowndog(lm) {
   else                        hs = 'wrong';
  
   // Check 2 — arms straight (shoulder–elbow–wrist angle)
-  const armL = ang(lm[11], lm[13], lm[15]);
-  const armR = ang(lm[12], lm[14], lm[16]);
+  const armL = angFromLm(lm, 11, 13, 15, 0.32);
+  const armR = angFromLm(lm, 12, 14, 16, 0.32);
   const asL  = aStatus(armL, t.armMin, t.armWarn);
   const asR  = aStatus(armR, t.armMin, t.armWarn);
 
-  const legL = ang(lm[23], lm[25], lm[27]);
-  const legR = ang(lm[24], lm[26], lm[28]);
+  const legL = angFromLm(lm, 23, 25, 27);
+  const legR = angFromLm(lm, 24, 26, 28);
   const lsL  = aStatus(legL, 145, 120);
   const lsR  = aStatus(legR, 145, 120);
  
@@ -178,13 +250,20 @@ function checkWarrior(lm) {
   const t = T.warrior;
  
   // Front knee — pick the more bent side (smaller angle)
-  const kL = ang(lm[23], lm[25], lm[27]);
-  const kR = ang(lm[24], lm[26], lm[28]);
-  const isLeftFront = kL < kR;
+  const kL = angFromLm(lm, 23, 25, 27);
+  const kR = angFromLm(lm, 24, 26, 28);
+  const kLok = Number.isFinite(kL);
+  const kRok = Number.isFinite(kR);
+  let isLeftFront = true;
+  if (kLok && kRok) isLeftFront = kL < kR;
+  else if (kRok && !kLok) isLeftFront = false;
  
   const fk = isLeftFront ? kL : kR;
   let fks, fkm;
-  if (fk >= t.kneeMin && fk <= t.kneeMax) {
+  if (!Number.isFinite(fk)) {
+    fks = 'wrong';
+    fkm = 'Step back until both legs are visible from hips to feet.';
+  } else if (fk >= t.kneeMin && fk <= t.kneeMax) {
     fks = 'good'; fkm = 'Good knee position — hold it steady.';
   } else if (fk > t.kneeMax && fk <= t.kneeMax + 30) {
     fks = 'needwork'; fkm = 'Bend your front knee deeper — aim for your thigh to be parallel to the floor.';
@@ -195,7 +274,7 @@ function checkWarrior(lm) {
   }
  
   const bk = isLeftFront ? kR : kL;
-  const bks = aStatus(bk, 145, 120);
+  const bks = Number.isFinite(bk) ? aStatus(bk, 145, 120) : 'wrong';
   const bkm = bks === 'good' ? 'Strong back leg.' : 'Straighten your back leg completely.';
 
   const ksL = isLeftFront ? fks : bks;
@@ -714,9 +793,10 @@ try {
     const lm      = results.poseLandmarks;
     const checker = CHECKERS[activePose];
     if (!checker) return;
+    const presence = evaluateLandmarkPresence(lm, activePose);
     const checks = checker(lm);
     drawSkeleton(lm, checks);
-    if (Date.now() - lastFbTs > DEBOUNCE) { lastFbTs = Date.now(); updateUI(checks); }
+    if (Date.now() - lastFbTs > DEBOUNCE) { lastFbTs = Date.now(); updateUI(checks, presence); }
   });
 } catch (mpErr) {
   console.error('MediaPipe failed to load:', mpErr);
@@ -739,9 +819,16 @@ try {
 const pose = poseDetector;
  
 // ─── UI updates ──────────────────────────────────────
-function updateUI(checks) {
+const FULL_BODY_TOAST = {
+  title: 'Show Your Full Body',
+  msg: 'Step back until hips, knees, and feet are clearly in frame. Alignment scores stay low until FlowBuddy can see your whole pose.'
+};
+
+function updateUI(checks, presence) {
+  const presenceFactor = presence && typeof presence.factor === 'number' ? presence.factor : 1;
   const prio = { wrong:0, needwork:0.5, good:1 };
-  const raw  = checks.reduce((s,c) => s + (prio[c.status] || 0), 0) / checks.length * 100;
+  const rawChecks = checks.reduce((s,c) => s + (prio[c.status] || 0), 0) / checks.length * 100;
+  const raw = rawChecks * presenceFactor;
   recordPoseSample(activePose, raw, checks);
  
   // FIX #5: seed from first real reading, not 85
@@ -768,9 +855,13 @@ function updateUI(checks) {
   if (bpPct) bpPct.textContent = pct + '%';
   if (bpBar) bpBar.style.width = pct + '%';
  
-  // FIX #4: pose-lock gate — only allow timer to run when pose is held
-  if (pct >= POSE_LOCK_THRESHOLD) {
+  const framingIssue = !!(presence && presence.framingIssue);
+  const presenceOk = !framingIssue && presenceFactor >= 0.42;
+  // FIX #4: pose-lock — score OK and framing is not clearly blocking the model
+  if (pct >= POSE_LOCK_THRESHOLD && presenceOk) {
     poseLockedFrames = Math.min(poseLockedFrames + 1, LOCK_FRAMES_NEEDED);
+  } else if (framingIssue && presenceFactor < 0.3) {
+    poseLockedFrames = 0;
   } else {
     poseLockedFrames = Math.max(poseLockedFrames - 1, 0);
   }
@@ -778,23 +869,32 @@ function updateUI(checks) {
   const wasLocked = poseLocked;
   poseLocked = poseLockedFrames >= LOCK_FRAMES_NEEDED;
  
+  const showFullBody = personInFrame && framingIssue;
+
   if (poseLocked && !wasLocked) {
-    // Just achieved the pose — resume timer
     resumeTimer();
     updateToast(null);
   } else if (!poseLocked && wasLocked && personInFrame) {
-    // Lost the pose while still in frame — pause and show correction
     pauseTimer();
-    const failing = checks.find(c => c.status !== 'good');
-    if (failing) updateToast(failing);
+    if (showFullBody) updateToast(FULL_BODY_TOAST);
+    else {
+      const failing = checks.find(c => c.status !== 'good');
+      if (failing) updateToast(failing);
+    }
   } else if (poseLocked) {
-    // Holding the pose — show corrections for needwork but keep timer going
-    const failing = checks.find(c => c.status === 'wrong');
-    updateToast(failing || null);
+    if (showFullBody) {
+      pauseTimer();
+      updateToast(FULL_BODY_TOAST);
+    } else {
+      const failing = checks.find(c => c.status === 'wrong');
+      updateToast(failing || null);
+    }
   } else {
-    // Not yet locked — show the worst correction
-    const failing = checks.find(c => c.status !== 'good');
-    updateToast(failing || null);
+    if (showFullBody) updateToast(FULL_BODY_TOAST);
+    else {
+      const failing = checks.find(c => c.status !== 'good');
+      updateToast(failing || null);
+    }
   }
 }
  
