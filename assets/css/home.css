@@ -17,44 +17,68 @@
       text-align: center;
       padding: 8rem 2rem 6rem;
       overflow: hidden;
-      background-color: #0b1a14;
+      background-color: #0a1813;
+      isolation: isolate;
     }
 
+    /* GPU-friendly: no filter blur, no 360° rotation on a huge layer (those tank low-end GPUs). */
     .hero-bg {
       position: absolute;
-      inset: -50%;
-      background: 
-        radial-gradient(circle at 50% 50%, rgba(38, 122, 90, 0.45) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(68, 201, 138, 0.35) 0%, transparent 40%),
-        radial-gradient(circle at 20% 80%, rgba(22, 61, 46, 0.55) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(144, 238, 208, 0.2) 0%, transparent 40%);
-      filter: blur(80px);
-      animation: aurora 20s linear infinite;
+      inset: -18%;
       z-index: 1;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+      background:
+        radial-gradient(ellipse 85% 70% at 38% 42%, rgba(45, 115, 85, 0.58) 0%, transparent 68%),
+        radial-gradient(ellipse 75% 65% at 72% 68%, rgba(78, 175, 128, 0.38) 0%, transparent 72%),
+        radial-gradient(ellipse 90% 55% at 50% 88%, rgba(12, 48, 32, 0.65) 0%, transparent 55%);
+      animation: hero-gradient-drift 26s ease-in-out infinite alternate;
     }
 
-    @keyframes aurora {
-      0% { transform: rotate(0deg) scale(1) translateX(0); }
-      25% { transform: rotate(90deg) scale(1.1) translateX(5%); }
-      50% { transform: rotate(180deg) scale(1.2) translateX(0); }
-      75% { transform: rotate(270deg) scale(1.1) translateX(-5%); }
-      100% { transform: rotate(360deg) scale(1) translateX(0); }
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      inset: -5%;
+      background: radial-gradient(ellipse 70% 60% at 62% 38%, rgba(120, 210, 170, 0.22) 0%, transparent 62%);
+      opacity: 0.9;
+      transform: translate3d(0, 0, 0);
+      animation: hero-gradient-drift-2 34s ease-in-out infinite alternate;
     }
 
-    /* Hero content floating animation */
+    @keyframes hero-gradient-drift {
+      0% { transform: translate3d(-2.5%, -1.5%, 0) scale(1); }
+      100% { transform: translate3d(2.5%, 2%, 0) scale(1.05); }
+    }
+
+    @keyframes hero-gradient-drift-2 {
+      0% { transform: translate3d(3%, 1%, 0) scale(1.02); opacity: 0.75; }
+      100% { transform: translate3d(-3%, -2%, 0) scale(1); opacity: 0.95; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-bg,
+      .hero-bg::before {
+        animation: none;
+      }
+      .hero-bg::before {
+        opacity: 0.85;
+      }
+      .hero-content {
+        animation: none;
+      }
+    }
+
+    /* Hero content floating — gentle, low amplitude (less layout churn than large moves). */
     @keyframes hero-float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-
-    .hero-content {
-      animation: hero-float 6s ease-in-out infinite;
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(0, -6px, 0); }
     }
 
     .hero-content {
       position: relative;
       z-index: 2;
       max-width: 560px;
+      animation: hero-float 8s ease-in-out infinite;
     }
 
     .hero h1 {
