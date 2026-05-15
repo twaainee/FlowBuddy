@@ -44,10 +44,15 @@
       framingStatus
     };
 
-    const sessions = readSessions().filter(item => item.id !== session.id);
-    sessions.unshift(session);
-    writeSessions(sessions);
-    return session;
+    try {
+      const sessions = readSessions().filter(item => item.id !== session.id);
+      sessions.unshift(session);
+      writeSessions(sessions);
+      return session;
+    } catch (err) {
+      console.warn('FlowBuddyHistory: could not persist session (storage full or blocked).', err);
+      return { ...session, id: '', framingStatus: session.framingStatus };
+    }
   }
 
   function getSession(id) {

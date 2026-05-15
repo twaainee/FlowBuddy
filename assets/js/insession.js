@@ -216,11 +216,11 @@ function checkMountain(lm) {
   else if (torsoLean >= 0.048) stackX = 'needwork';
 
   const shoulderMidY = (lm[11].y + lm[12].y) / 2;
-  const headClear = shoulderMidY - lm[0].y;
   let headGapSt = 'good';
-  if (lmVis(lm, 0) < 0.28 || lmVis(lm, 11) < 0.24 || lmVis(lm, 12) < 0.24) {
+  if (!lm[0] || lmVis(lm, 0) < 0.28 || lmVis(lm, 11) < 0.24 || lmVis(lm, 12) < 0.24) {
     headGapSt = 'needwork';
   } else {
+    const headClear = shoulderMidY - lm[0].y;
     headGapSt = aStatus(headClear, t.headClearMin, t.headClearWarn);
   }
 
@@ -671,8 +671,22 @@ function buildSessionSummary() {
     : 0;
   const duration = Math.min(maxDur, Math.max(totalElapsedSec, wallSecs));
   const extraWallOnly = Math.max(0, duration - totalElapsedSec);
-  if (extraWallOnly > 0 && poses[activePose]) {
-    poses[activePose].seconds += extraWallOnly;
+  if (extraWallOnly > 0) {
+    const tracked = Object.keys(poses).filter(k => poses[k].seconds > 0);
+    const sumTracked = tracked.reduce((s, k) => s + poses[k].seconds, 0);
+    if (sumTracked <= 0) {
+      if (poses[activePose]) poses[activePose].seconds += extraWallOnly;
+    } else {
+      let allocated = 0;
+      tracked.forEach((k, idx) => {
+        const add =
+          idx === tracked.length - 1
+            ? extraWallOnly - allocated
+            : Math.floor((extraWallOnly * poses[k].seconds) / sumTracked);
+        poses[k].seconds += add;
+        allocated += add;
+      });
+    }
   }
 
   const alignment = smoothScore !== null ? Math.round(smoothScore) : 0;
@@ -1140,7 +1154,7 @@ async function startPose(poseKey) {
  
   ['sb-score-pct','bp-score-pct'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='—'; });
   ['sb-score-bar','bp-score-bar'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.width='0%'; });
-  document.getElementById('correction-toast').classList.add('hidden');
+  document.getElementById('correction-toast')?.classList.add('hidden');
   document.getElementById('loading-overlay').style.display = 'flex';
   document.getElementById('cam-error').style.display = 'none';
  
@@ -1192,13 +1206,13 @@ function switchPose(poseKey) {
   activePose = poseKey; smoothScore = null; scoreReadings = 0;
   personInFrame = false; timerRunning = false; poseLocked = false; poseLockedFrames = 0;
   clearInterval(timerInterval);
-  const meta = POSE_META[poseKey];
+  const meta = POSE_META[poseKey] || POSE_META.mountain;
   updateSidebarMeta(poseKey, meta);
   updateActivePill(poseKey);
   startTimer(meta.timer);
   ['sb-score-pct','bp-score-pct'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='—'; });
   ['sb-score-bar','bp-score-bar'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.width='0%'; });
-  document.getElementById('correction-toast').classList.add('hidden');
+  document.getElementById('correction-toast')?.classList.add('hidden');
 }
  
 function updateSidebarMeta(poseKey, meta) {
@@ -1281,6 +1295,9 @@ function completeSession(delayMs = 0) {
     pose: sessionSummary.activePose
   });
   if (sessionId) params.set('session', sessionId);
+  if (sessionSummary.framingStatus && sessionSummary.framingStatus !== 'ok') {
+    params.set('framing', sessionSummary.framingStatus);
+  }
 
   window.setTimeout(() => {
     window.location.href = `summary.html?${params.toString()}`;
