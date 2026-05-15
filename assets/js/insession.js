@@ -1,8 +1,8 @@
 // ─── Pose meta ───────────────────────────────────────
 const POSE_META = {
-  mountain: { name:'Mountain Pose', sanskrit:'Tadasana',             timer:300, img:'../assets/images/mountain_pose.avif' },
-  downdog:  { name:'Downward Dog',  sanskrit:'Adho Mukha Svanasana', timer:600, img:'../assets/images/downward_dog.avif' },
-  warrior:  { name:'Warrior I',     sanskrit:'Virabhadrasana I',      timer:900, img:'../assets/images/warrior_1.webp' },
+  mountain: { name:'Mountain Pose', sanskrit:'Tadasana',             timer:60, img:'../assets/images/mountain_pose.avif' },
+  downdog:  { name:'Downward Dog',  sanskrit:'Adho Mukha Svanasana', timer:60, img:'../assets/images/downward_dog.avif' },
+  warrior:  { name:'Warrior I',     sanskrit:'Virabhadrasana I',      timer:60, img:'../assets/images/warrior_1.webp' },
 };
  
 // ─── Connections ─────────────────────────────────────
@@ -546,8 +546,8 @@ function drawSkeleton(lm, checks) {
 }
  
 // ─── State ───────────────────────────────────────────
-let timerInterval = null, timerSec = 300;
-let timerTotal = 300;           // full duration for current pose
+let timerInterval = null, timerSec = 60;
+let timerTotal = 60;           // full duration for current pose (POSE_META.timer overwrites)
 let smoothScore = null;         // FIX #5: null = no readings yet, avoids fake 85% start
 let scoreReadings = 0;          // count of real readings so far
 let lastFbTs = 0;
